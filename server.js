@@ -1,0 +1,37 @@
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const sequelize = require("./config/db");
+
+dotenv.config();
+
+const authRoutes = require("./routes/authRoutes");
+const protectedRoutes = require("./routes/protected");
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+sequelize.authenticate()
+  .then(() => console.log("Connected to MariaDB"))
+  .catch((err) => console.error("Database connection error:", err));
+  sequelize.sync({ alter: true })
+  .then(() => console.log('All models synchronized with database'))
+  .catch(err => console.error('Error syncing models:', err));
+
+
+app.use("/api/auth", authRoutes);
+app.use("/api", protectedRoutes);
+
+app.get("/", (req, res) => {
+  res.send("Aku mau eskim");
+});
+
+app.use((err, req, res, next) => {
+  console.error("Server Error:", err.stack);
+  res.status(500).json({ message: "Internal Server Error", error: err.message });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
