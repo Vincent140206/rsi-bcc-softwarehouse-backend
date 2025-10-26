@@ -21,11 +21,11 @@ sequelize.authenticate()
   .catch(err => console.error('Error syncing models:', err));
 
 
-app.use("/api/auth", authRoutes);
-app.use("/api", protectedRoutes);
+app.use("/rsi/api/auth", authRoutes);
+app.use("/rsi/api", protectedRoutes);
 
-app.get("/", (req, res) => {
-  res.send("Aku mau eskim");
+app.get('/rsi/', (req, res) => {
+  res.send('Aku maw eskim');
 });
 
 app.use((err, req, res, next) => {
@@ -33,5 +33,5 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "Internal Server Error", error: err.message });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
