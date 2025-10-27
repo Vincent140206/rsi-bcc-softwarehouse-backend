@@ -66,15 +66,18 @@ async function getProjectDetail(req, res) {
 async function getAllByUserId(req, res) {
   try {
     const { userId } = req.params;
-    console.log('UserId dari params:', userId);
 
     const requests = await RequestProjectData.findAll({
       where: { userId },
       order: [['created_at', 'DESC']]
     });
 
-    console.log('Jumlah hasil:', requests.length);
-    console.log('Semua data:', JSON.stringify(requests, null, 2));
+    if (requests.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Tidak ada request project untuk user ini'
+      });
+    }
 
     return res.status(200).json({
       success: true,
@@ -82,7 +85,6 @@ async function getAllByUserId(req, res) {
       data: requests
     });
   } catch (error) {
-    console.error('Error mengambil data request:', error);
     return res.status(500).json({
       success: false,
       message: 'Terjadi kesalahan server',
