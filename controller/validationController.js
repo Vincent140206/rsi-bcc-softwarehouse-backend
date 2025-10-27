@@ -1,30 +1,62 @@
-const validationController = {
-  validateFormData: (projectData) => {
-    const kelengkapan = validationController.cekKelengkapanData(projectData);
-    const format = validationController.cekFormatData(projectData);
+function cekKelengkapanData(projectData) {
+  const requiredFields = [
+    'userId',
+    'projectName',
+    'projectDescription',
+    'clientName',
+    'budget',
+    'deadline'
+  ];
 
-    if (!kelengkapan) return { valid: false, message: "data tidak lengkap" };
-    if (!format) return { valid: false, message: "format salah" };
-    return { valid: true };
-  },
-
-  cekKelengkapanData: (data) => {
-    return data.projectName && data.projectDescription && data.clientName && data.budget && data.deadline;
-  },
-
-  cekFormatData: (data) => {
-    if (isNaN(data.budget)) return false;
-    if (isNaN(Date.parse(data.deadline))) return false;
-    return true;
-  },
-
-  tampilkanNotifikasiError: (msg, res) => {
-    res.status(400).json({ success: false, message: msg });
-  },
-
-  tampilkanPesanGagalValidasi: (res) => {
-    res.status(500).json({ success: false, message: "connection error" });
+  for (let field of requiredFields) {
+    if (!projectData[field] || projectData[field].toString().trim() === '') {
+      return false;
+    }
   }
-};
+  return true;
+}
 
-module.exports = validationController;
+function cekFormatData(projectData) {
+  if (isNaN(projectData.budget) || Number(projectData.budget) <= 0) {
+    return false;
+  }
+
+  const date = new Date(projectData.deadline);
+  if (isNaN(date.getTime())) {
+    return false;
+  }
+
+  return true;
+}
+
+function validateFormData(projectData) {
+  if (!cekKelengkapanData(projectData)) {
+    return { valid: false, message: 'Data tidak lengkap' };
+  }
+
+  if (!cekFormatData(projectData)) {
+    return { valid: false, message: 'Format data salah' };
+  }
+
+  return { valid: true };
+}
+
+function tampilkanNotifikasiError(message, res) {
+  return res.status(400).json({
+    success: false,
+    error: message
+  });
+}
+
+function tampilkanPesanGagalValidasi(message, res) {
+  return res.status(500).json({
+    success: false,
+    error: message || 'Gagal melakukan validasi data'
+  });
+}
+
+module.exports = {
+  validateFormData,
+  tampilkanNotifikasiError,
+  tampilkanPesanGagalValidasi,
+};
