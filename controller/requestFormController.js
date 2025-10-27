@@ -26,25 +26,25 @@ async function submitRequest(projectData, res) {
   }
 }
 
-exports.getAllRequests = async (req, res) => {
+async function getAllRequests(req, res) {
   try {
-    const requests = await RequestProject.findAll({
+    const requests = await RequestProjectData.findAll({
       order: [['created_at', 'DESC']]
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: 'Data request project berhasil diambil',
       data: requests
     });
   } catch (error) {
     console.error('Error mengambil data request:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Terjadi kesalahan server',
       error: error.message
     });
   }
-};
+}
 
 module.exports = { submitRequest, getAllRequests };
