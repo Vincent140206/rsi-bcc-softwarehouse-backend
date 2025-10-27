@@ -35,6 +35,14 @@ const RequestProjectData = sequelize.define('RequestProjectData', {
     type: DataTypes.STRING(50),
     defaultValue: 'pending'
   },
+  analysis_notes: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  analyzed_by: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
   created_at: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW

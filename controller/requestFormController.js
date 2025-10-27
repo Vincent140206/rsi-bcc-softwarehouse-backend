@@ -22,7 +22,7 @@ async function submitRequest(projectData, res) {
     return res.status(500).json({
       success: false,
       error: 'Terjadi kesalahan pada server'
-    });
+    });x
   }
 }
 
@@ -47,4 +47,20 @@ async function getAllRequests(req, res) {
   }
 }
 
-module.exports = { submitRequest, getAllRequests };
+async function getProjectDetail(req, res) {
+  try {
+    const { id } = req.params;
+    const project = await RequestProjectData.findByPk(id);
+
+    if (!project) {
+      return res.status(404).json({ success: false, message: 'Project tidak ditemukan' });
+    }
+
+    res.status(200).json({ success: true, data: project });
+  } catch (error) {
+    console.error('Error mengambil detail project:', error);
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan server' });
+  }
+};
+
+module.exports = { submitRequest, getAllRequests, getProjectDetail };
