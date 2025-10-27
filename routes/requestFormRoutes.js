@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const validationController = require('../controllers/validationController');
-const requestFormController = require('../controllers/requestFormController');
+const validationController = require('../controller/validationController');
+const requestFormController = require('../controller/requestFormController');
 
 router.get('/form', (req, res) => {
   res.status(200).json({ message: 'Form ditampilkan' });
