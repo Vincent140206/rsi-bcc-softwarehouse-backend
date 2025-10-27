@@ -67,7 +67,7 @@ async function getAllByUserId(req, res) {
   try {
     const { userId } = req.params;
     const requests = await RequestProjectData.findAll({
-      where: { userId },
+      where: { userId: Number(userId) },
       order: [['created_at', 'DESC']]
     });
 
