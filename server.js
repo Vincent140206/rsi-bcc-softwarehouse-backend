@@ -7,6 +7,7 @@ dotenv.config();
 
 const authRoutes = require("./routes/authRoutes");
 const protectedRoutes = require("./routes/protected");
+const requestRoutes = require('./routes/requestFormRoutes');
 
 const app = express();
 
