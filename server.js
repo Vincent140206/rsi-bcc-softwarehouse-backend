@@ -23,6 +23,7 @@ sequelize.authenticate()
 
 app.use("/rsi/api/auth", authRoutes);
 app.use("/rsi/api", protectedRoutes);
+app.use('/rsi/api/request', requestRoutes);
 
 app.get('/rsi/', (req, res) => {
   res.send('Aku maw eskim');
