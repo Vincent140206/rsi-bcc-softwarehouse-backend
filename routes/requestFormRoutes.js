@@ -25,6 +25,6 @@ router.post('/form/submit', async (req, res) => {
 
 router.get('/form/data', requestFormController.getAllRequests);
 router.get('/form/:requestId', requestFormController.getProjectDetail);
-router.get('/form/:userId', requestFormController.getAllByUserId);
+router.get('/form/user/:userId', requestFormController.getAllByUserId);
 
 module.exports = router;
