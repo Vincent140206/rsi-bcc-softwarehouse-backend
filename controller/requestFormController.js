@@ -63,4 +63,27 @@ async function getProjectDetail(req, res) {
   }
 };
 
-module.exports = { submitRequest, getAllRequests, getProjectDetail };
+async function getAllByUserId(req, res) {
+  try {
+    const { userId } = req.params;
+    const requests = await RequestProjectData.findAll({
+      where: { userId },
+      order: [['created_at', 'DESC']]
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Data request project berhasil diambil',
+      data: requests
+    });
+  } catch (error) {
+    console.error('Error mengambil data request:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan server',
+      error: error.message
+    });
+  }
+}
+
+module.exports = { submitRequest, getAllRequests, getProjectDetail, getAllByUserId };
