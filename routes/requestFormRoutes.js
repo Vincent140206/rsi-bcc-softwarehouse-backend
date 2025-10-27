@@ -23,4 +23,6 @@ router.post('/form/submit', async (req, res) => {
   await requestFormController.submitRequest(projectData, res);
 });
 
+router.get('/form/data', requestFormController.getAllRequests);
+
 module.exports = router;
