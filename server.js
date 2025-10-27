@@ -8,6 +8,7 @@ dotenv.config();
 const authRoutes = require("./routes/authRoutes");
 const protectedRoutes = require("./routes/protected");
 const requestRoutes = require('./routes/requestFormRoutes');
+const projectAnalysisRoutes = require('./routes/projectAnalysisRoutes');
 
 const app = express();
 
@@ -25,6 +26,7 @@ sequelize.authenticate()
 app.use("/rsi/api/auth", authRoutes);
 app.use("/rsi/api", protectedRoutes);
 app.use('/rsi/api/request', requestRoutes);
+app.use('/rsi/api/request/form', projectAnalysisRoutes);
 
 app.get('/rsi/', (req, res) => {
   res.send('Aku maw eskim');
