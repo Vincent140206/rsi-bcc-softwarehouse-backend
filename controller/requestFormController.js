@@ -49,8 +49,8 @@ async function getAllRequests(req, res) {
 
 async function getProjectDetail(req, res) {
   try {
-    const { id } = req.params;
-    const project = await RequestProjectData.findByPk(id);
+    const { requestId } = req.params;
+    const project = await RequestProjectData.findByPk(requestId);
 
     if (!project) {
       return res.status(404).json({ success: false, message: 'Project tidak ditemukan' });

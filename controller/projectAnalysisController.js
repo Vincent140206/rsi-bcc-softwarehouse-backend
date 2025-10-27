@@ -1,5 +1,4 @@
 const RequestProjectData = require('../models/requestProjectData');
-const projectStatusController = require('./projectStatusController');
 
 exports.analyzeProject = async (req, res) => {
   try {
