@@ -23,7 +23,7 @@ sequelize.authenticate()
   .then(() => console.log('All models synchronized with database'))
   .catch(err => console.error('Error syncing models:', err));
 
-app.use('/api', require('./routes/testRoutes'));
+app.use('/rsi/api', require('./routes/testRoutes'));
 app.use("/rsi/api/auth", authRoutes);
 app.use("/rsi/api", protectedRoutes);
 app.use('/rsi/api/request', requestRoutes);
