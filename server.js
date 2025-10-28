@@ -27,7 +27,7 @@ app.use("/rsi/api/auth", authRoutes);
 app.use("/rsi/api", protectedRoutes);
 app.use('/rsi/api/request', requestRoutes);
 app.use('/rsi/api/analysis', projectAnalysisRoutes);
-app.use('/rsi/api/payment', require('./routes/paymentRoutes'));
+app.use('/rsi/api/payment', paymentRoutes);
 
 app.get('/rsi/', (req, res) => {
   res.send('Project Rekayasa Sistem Informasi');
