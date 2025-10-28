@@ -31,4 +31,8 @@ jobs:
       - name: Restart PM2 app
         run: |
           cd ~/rsi-bcc-softwarehouse-backend
-          pm2 restart app || pm2 start server.js --name "app"
+          if pm2 list | grep -q "rsi-backend"; then
+            pm2 restart rsi-backend
+          else
+            pm2 start server.js --name "rsi-backend"
+          fi
