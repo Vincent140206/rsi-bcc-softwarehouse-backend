@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted  # Karena sekarang jalan di VM kamu sendiri
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repository

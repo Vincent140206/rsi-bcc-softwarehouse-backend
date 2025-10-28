@@ -29,7 +29,7 @@ app.use('/rsi/api/request', requestRoutes);
 app.use('/rsi/api/analysis', projectAnalysisRoutes);
 
 app.get('/rsi/', (req, res) => {
-  res.send('Anjay bisa ci/cd');
+  res.send('gerald tampan');
 });
 
 app.use((err, req, res, next) => {
