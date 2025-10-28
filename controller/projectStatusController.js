@@ -1,6 +1,5 @@
-const RequestProjectData = require('../models/requestProjectData');
-const Payment = require('../models/Payment');
-
+const RequestProjectData = require("../models/requestProjectData");
+const Payment = require("../models/Payment");
 
 exports.updateStatus = async (req, res) => {
   try {
@@ -9,31 +8,38 @@ exports.updateStatus = async (req, res) => {
 
     const project = await RequestProjectData.findByPk(requestId);
     if (!project)
-      return res.status(404).json({ success: false, message: 'Project tidak ditemukan' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Project tidak ditemukan" });
 
     project.status = status;
     project.analyzed_by = analyzed_by;
     project.analysis_notes = analysis_notes;
     await project.save();
 
-    console.log('Project updated with status:', project.status);
+    console.log("Project updated with status:", project.status);
 
-    if (status.toLowerCase() === 'approved') {
-      console.log('Creating payment for project', project.requestId);
+    if (status.trim().toLowerCase() === "approved") {
+      console.log("IF triggered, creating payment...");
       await Payment.create({
         requestId: project.requestId,
         fileUrl: null,
-        status: 'Pending'
+        status: "Pending",
       });
+      console.log("Payment created for request", project.requestId);
+    } else {
+      console.log("❌ IF NOT triggered, status =", status);
     }
 
     res.status(200).json({
       success: true,
-      message: 'Status project diperbarui',
-      data: project
+      message: "Status project diperbarui",
+      data: project,
     });
   } catch (error) {
-    console.error('Error updateProjectStatus:', error);
-    res.status(500).json({ success: false, message: 'Gagal memperbarui status project' });
+    console.error("Error updateProjectStatus:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Gagal memperbarui status project" });
   }
 };
