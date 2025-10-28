@@ -9,6 +9,7 @@ const authRoutes = require("./routes/authRoutes");
 const protectedRoutes = require("./routes/protected");
 const requestRoutes = require('./routes/requestFormRoutes');
 const projectAnalysisRoutes = require('./routes/projectAnalysisRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 const app = express();
 
