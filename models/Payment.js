@@ -21,7 +21,7 @@ const Payment = sequelize.define('Payment', {
     allowNull: true
   },
   status: {
-    type: DataTypes.STRING(50),
+    type: DataTypes.ENUM('Pending', 'Verified', 'Rejected'),
     defaultValue: 'Pending'
   },
   uploadedBy: {
@@ -45,6 +45,6 @@ const Payment = sequelize.define('Payment', {
   timestamps: false
 });
 
-Payment.belongsTo(RequestProjectData, { foreignKey: 'requestId' });
+Payment.belongsTo(RequestProjectData, { foreignKey: 'requestId', onDelete: 'CASCADE' });
 
 module.exports = Payment;

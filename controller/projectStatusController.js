@@ -16,7 +16,10 @@ exports.updateStatus = async (req, res) => {
     project.analysis_notes = analysis_notes;
     await project.save();
 
-    if (status === 'Approved') {
+    console.log('Project updated with status:', project.status);
+
+    if (status.toLowerCase() === 'approved') {
+      console.log('Creating payment for project', project.requestId);
       await Payment.create({
         requestId: project.requestId,
         fileUrl: null,
