@@ -29,7 +29,7 @@ app.use('/rsi/api/request', requestRoutes);
 app.use('/rsi/api/analysis', projectAnalysisRoutes);
 
 app.get('/rsi/', (req, res) => {
-  res.send('bisa yuk anjay');
+  res.send('Project Rekayasa Sistem Informasi');
 });
 
 app.use((err, req, res, next) => {
