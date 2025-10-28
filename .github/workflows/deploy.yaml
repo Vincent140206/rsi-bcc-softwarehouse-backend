@@ -23,5 +23,5 @@ jobs:
 
       - name: Restart PM2 app
         run: |
-          cd rsi-bcc-softwarehouse-backend
+          cd ~/rsi-bcc-softwarehouse-backend
           pm2 restart all || pm2 start server.js --name "app"
