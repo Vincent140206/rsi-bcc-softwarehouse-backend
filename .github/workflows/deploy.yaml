@@ -1,0 +1,43 @@
+name: Node.js CI/CD to VM
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run build (optional, kalau ada)
+        run: |
+          if [ -f package.json ] && grep -q "\"build\":" package.json; then
+            npm run build
+          else
+            echo "No build script found, skipping..."
+          fi
+
+      - name: Deploy to VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          port: ${{ secrets.SERVER_PORT }}
+          key: ${{ secrets.SERVER_KEY }}
+          script: |
+            cd ~/rsi-bcc-softwarehouse-backend
+            git pull origin master
+            npm install --production
+            pm2 restart all || pm2 start npm --name "app" -- start
