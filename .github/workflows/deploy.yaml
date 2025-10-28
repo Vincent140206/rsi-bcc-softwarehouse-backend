@@ -21,7 +21,14 @@ jobs:
       - name: Install dependencies
         run: npm install --production
 
+      - name: Update production code
+        run : |
+          cd ~/rsi-bcc-softwarehouse-backend
+          git fetch origin master
+          git reset --hard origin/master
+          npm install --production
+
       - name: Restart PM2 app
         run: |
           cd ~/rsi-bcc-softwarehouse-backend
-          pm2 restart all || pm2 start server.js --name "app"
+          pm2 restart app || pm2 start server.js --name "app"
