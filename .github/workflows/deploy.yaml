@@ -37,7 +37,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           key: ${{ secrets.SERVER_KEY }}
           script: |
-            cd ~/rsi-bcc-softwarehouse-backend
+            cd /rsi-bcc-softwarehouse-backend
             git pull origin master
             npm install --production
-            pm2 restart all || pm2 start npm --name "app" -- start
+            pm2 restart all || pm2 start server.js --name "app"
