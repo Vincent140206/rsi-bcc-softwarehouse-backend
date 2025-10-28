@@ -29,7 +29,7 @@ app.use('/rsi/api/request', requestRoutes);
 app.use('/rsi/api/analysis', projectAnalysisRoutes);
 
 app.get('/rsi/', (req, res) => {
-  res.send('test ci/cd');
+  res.send('test ci/cd#2');
 });
 
 app.use((err, req, res, next) => {
