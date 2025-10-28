@@ -1,4 +1,4 @@
-name: Node.js CI/CD to VM
+name: Node.js CI/CD (Self-hosted Runner)
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: self-hosted  # Karena sekarang jalan di VM kamu sendiri
 
     steps:
       - name: Checkout repository
@@ -19,25 +19,9 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --production
 
-      - name: Run build (optional, kalau ada)
+      - name: Restart PM2 app
         run: |
-          if [ -f package.json ] && grep -q "\"build\":" package.json; then
-            npm run build
-          else
-            echo "No build script found, skipping..."
-          fi
-
-      - name: Deploy to VM
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          port: ${{ secrets.SERVER_PORT }}
-          key: ${{ secrets.SERVER_KEY }}
-          script: |
-            cd /rsi-bcc-softwarehouse-backend
-            git pull origin master
-            npm install --production
-            pm2 restart all || pm2 start server.js --name "app"
+          cd ~/rsi-bcc-softwarehouse-backend
+          pm2 restart all || pm2 start server.js --name "app"
