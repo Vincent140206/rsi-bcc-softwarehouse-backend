@@ -1,4 +1,6 @@
 const RequestProjectData = require('../models/requestProjectData');
+const Payment = require('../models/Payment');
+
 
 exports.updateStatus = async (req, res) => {
   try {
