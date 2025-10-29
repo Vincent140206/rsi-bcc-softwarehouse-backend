@@ -1,5 +1,6 @@
 const Payment = require('../models/Payment');
 const RequestProjectData = require('../models/requestProjectData');
+const cloudinary = require('../config/cloudinary');
 
 exports.getPaymentsByUser = async (req, res) => {
   try {
