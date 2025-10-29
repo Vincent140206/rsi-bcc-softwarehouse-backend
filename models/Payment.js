@@ -13,7 +13,7 @@ const Payment = sequelize.define('Payment', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'RequestProjectDatas',
+      model: 'RequestProjectData',
       key: 'requestId'
     }
   },
