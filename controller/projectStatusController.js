@@ -4,137 +4,178 @@ const sequelize = require("../config/db");
 const fs = require('fs');
 
 function debugLog(message, data = {}) {
-  const logMessage = `[${new Date().toISOString()}] ${message} ${JSON.stringify(data)}\n`;
-  fs.appendFileSync('./payment-debug.log', logMessage);
-  console.log(message, data);
+  const timestamp = new Date().toISOString();
+  const logMessage = `[${timestamp}] ${message} ${JSON.stringify(data)}\n`;
+  
+  try {
+    fs.appendFileSync('./payment-debug.log', logMessage);
+  } catch (err) {
+    console.error('Failed to write log:', err.message);
+  }
+  
+  console.log(`[${timestamp}] ${message}`, data);
 }
 
 exports.updateStatus = async (req, res) => {
+  let transaction;
+  
   try {
     const { requestId } = req.params;
     const { status, analyzed_by, analysis_notes } = req.body;
 
-    debugLog("🟦 START updateStatus", { requestId, status });
+    debugLog("START updateStatus", { requestId, status, analyzed_by });
 
     const project = await RequestProjectData.findByPk(requestId);
     
     if (!project) {
-      debugLog("❌ Project not found", { requestId });
+      debugLog("ERROR: Project not found", { requestId });
       return res.status(404).json({ 
         success: false, 
         message: "Project tidak ditemukan" 
       });
     }
 
-    debugLog("✅ Project found", {
-      projectId: project.id,
-      projectRequestId: project.requestId,
+    debugLog("SUCCESS: Project found", {
+      id: project.id,
+      requestId: project.requestId,
       currentStatus: project.status
     });
 
     const normalizedStatus = status?.trim().toLowerCase();
     
-    debugLog("🔄 Status info", {
-      originalStatus: status,
-      normalizedStatus,
+    debugLog("INFO: Status normalized", {
+      original: status,
+      normalized: normalizedStatus,
       isApproved: normalizedStatus === "approved"
     });
 
-    const result = await sequelize.transaction(async (t) => {
-      debugLog("🔵 Transaction started");
+    transaction = await sequelize.transaction();
+    debugLog("INFO: Transaction started", { 
+      isolationLevel: transaction.options.isolationLevel 
+    });
 
-      project.status = status;
-      project.analyzed_by = analyzed_by;
-      project.analysis_notes = analysis_notes;
-      await project.save({ transaction: t });
-      
-      debugLog("✅ Project updated", { 
-        status: project.status 
+    project.status = status;
+    project.analyzed_by = analyzed_by;
+    project.analysis_notes = analysis_notes;
+    
+    await project.save({ transaction });
+    
+    debugLog("SUCCESS: Project updated", { 
+      newStatus: project.status,
+      analyzedBy: project.analyzed_by
+    });
+
+    let paymentResult = null;
+    let paymentCreated = false;
+
+    if (normalizedStatus === "Approved") {
+      debugLog("INFO: Status approved - checking payment");
+
+      const existingPayment = await Payment.findOne({
+        where: { requestId: project.requestId },
+        transaction
       });
 
-      if (normalizedStatus === "approved") {
-        debugLog("🟢 Creating payment for approved status");
-
-        const existingPayment = await Payment.findOne({
-          where: { requestId: project.requestId },
-          transaction: t
+      if (existingPayment) {
+        debugLog("WARNING: Payment already exists", {
+          paymentId: existingPayment.paymentId,
+          status: existingPayment.status
         });
-
-        debugLog("🔍 Existing payment check", {
-          exists: !!existingPayment
-        });
-
-        if (!existingPayment) {
-          debugLog("🟡 Attempting payment creation", {
-            requestId: project.requestId,
-            status: "Pending"
-          });
-
-          const paymentData = {
-            requestId: project.requestId,
-            fileUrl: null,
-            status: "Pending",
-            uploadedBy: null,
-            uploadedAt: new Date(),
-            validatedBy: null,
-            validatedAt: null
-          };
-
-          debugLog("📝 Payment data prepared", paymentData);
-
-          const newPayment = await Payment.create(paymentData, { 
-            transaction: t,
-            logging: (sql) => debugLog("SQL executed", { sql })
-          });
-          
-          debugLog("💳✅ Payment created", {
-            paymentId: newPayment.paymentId,
-            requestId: newPayment.requestId,
-            status: newPayment.status
-          });
-
-          return { project, payment: newPayment, created: true };
-        } else {
-          debugLog("⚠️ Payment already exists", {
-            paymentId: existingPayment.paymentId
-          });
-          return { project, payment: existingPayment, created: false };
-        }
+        paymentResult = existingPayment;
+        paymentCreated = false;
       } else {
-        debugLog("⏭️ Status not approved, skip payment", {
-          status: normalizedStatus
+        debugLog("INFO: Creating new payment", { requestId: project.requestId });
+
+        const paymentData = {
+          requestId: project.requestId,
+          fileUrl: null,
+          status: "Pending",
+          uploadedBy: null,
+          uploadedAt: new Date(),
+          validatedBy: null,
+          validatedAt: null
+        };
+
+        debugLog("INFO: Payment data prepared", paymentData);
+
+        const newPayment = await Payment.create(paymentData, { 
+          transaction,
+          logging: (sql) => debugLog("SQL EXECUTED", { sql })
         });
-        return { project, payment: null, created: false };
+
+        debugLog("SUCCESS: Payment created", {
+          paymentId: newPayment.paymentId,
+          requestId: newPayment.requestId,
+          status: newPayment.status
+        });
+
+        paymentResult = newPayment;
+        paymentCreated = true;
       }
-    });
+    } else {
+      debugLog("INFO: Status not approved, skipping payment", { 
+        status: normalizedStatus 
+      });
+    }
 
-    debugLog("🟢 Transaction committed", {
-      paymentCreated: result.created
-    });
+    debugLog("INFO: Committing transaction");
+    await transaction.commit();
+    debugLog("SUCCESS: Transaction committed");
 
-    res.status(200).json({
+    const responseData = {
       success: true,
       message: "Status project diperbarui",
       data: {
-        project: project,
-        payment: result.payment,
-        paymentCreated: result.created
+        project: {
+          id: project.id,
+          requestId: project.requestId,
+          status: project.status,
+          analyzed_by: project.analyzed_by
+        },
+        payment: paymentResult ? {
+          paymentId: paymentResult.paymentId,
+          requestId: paymentResult.requestId,
+          status: paymentResult.status,
+          uploadedAt: paymentResult.uploadedAt
+        } : null,
+        paymentCreated: paymentCreated
       }
+    };
+
+    debugLog("SUCCESS: Sending response", { 
+      paymentCreated,
+      hasPayment: !!paymentResult 
     });
 
+    res.status(200).json(responseData);
+
   } catch (error) {
-    debugLog("❌ ERROR", {
+    debugLog("ERROR: Exception caught", {
       message: error.message,
       name: error.name,
       code: error.code,
-      sql: error.sql,
+      errno: error.errno,
+      sqlState: error.sqlState,
+      sqlMessage: error.sqlMessage,
       stack: error.stack
     });
+
+    if (transaction) {
+      try {
+        debugLog("INFO: Rolling back transaction");
+        await transaction.rollback();
+        debugLog("SUCCESS: Transaction rolled back");
+      } catch (rollbackError) {
+        debugLog("ERROR: Rollback failed", { 
+          error: rollbackError.message 
+        });
+      }
+    }
 
     res.status(500).json({
       success: false,
       message: "Gagal memperbarui status project",
-      error: error.message,
+      error: error.message
     });
   }
 };
