@@ -6,13 +6,14 @@ const Payment = sequelize.define('Payment', {
   paymentId: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true
+    autoIncrement: true,
+    allowNull: false
   },
   requestId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: RequestProjectData,
+      model: 'RequestProjectDatas',
       key: 'requestId'
     }
   },
@@ -22,7 +23,8 @@ const Payment = sequelize.define('Payment', {
   },
   status: {
     type: DataTypes.ENUM('Pending', 'Verified', 'Rejected'),
-    defaultValue: 'Pending'
+    defaultValue: 'Pending',
+    allowNull: false
   },
   uploadedBy: {
     type: DataTypes.INTEGER,
@@ -45,6 +47,10 @@ const Payment = sequelize.define('Payment', {
   timestamps: false
 });
 
-Payment.belongsTo(RequestProjectData, { foreignKey: 'requestId', onDelete: 'CASCADE' });
+Payment.belongsTo(RequestProjectData, { 
+  foreignKey: 'requestId', 
+  targetKey: 'requestId',
+  onDelete: 'CASCADE' 
+});
 
 module.exports = Payment;
