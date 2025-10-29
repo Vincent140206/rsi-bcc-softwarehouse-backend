@@ -7,7 +7,7 @@ exports.updateStatus = async (req, res) => {
     const { requestId } = req.params;
     const { status, analyzed_by, analysis_notes } = req.body;
 
-    console.log("🟦 Incoming updateStatus request:", {
+    console.log("Incoming updateStatus request:", {
       requestId,
       status,
       analyzed_by,
@@ -22,13 +22,6 @@ exports.updateStatus = async (req, res) => {
         .json({ success: false, message: "Project tidak ditemukan" });
     }
 
-    project.status = status;
-    project.analyzed_by = analyzed_by;
-    project.analysis_notes = analysis_notes;
-    await project.save();
-
-    console.log("Project updated successfully:", project.status);
-
     const normalizedStatus = status?.trim().toLowerCase();
     console.log("Normalized status:", normalizedStatus);
 
@@ -37,13 +30,28 @@ exports.updateStatus = async (req, res) => {
       project.analyzed_by = analyzed_by;
       project.analysis_notes = analysis_notes;
       await project.save({ transaction: t });
+      
+      console.log("Project updated successfully:", project.status);
 
-      if (status?.trim().toLowerCase() === "approved") {
-        const newPayment = await Payment.create(
-          { requestId: project.requestId, fileUrl: null, status: "Pending" },
-          { transaction: t }
-        );
-        console.log("Payment successfully created:", newPayment.toJSON());
+      if (normalizedStatus === "Approved") {
+        const existingPayment = await Payment.findOne({
+          where: { requestId: project.requestId },
+          transaction: t
+        });
+
+        if (!existingPayment) {
+          const newPayment = await Payment.create(
+            { 
+              requestId: project.requestId, 
+              fileUrl: null, 
+              status: "Pending" 
+            },
+            { transaction: t }
+          );
+          console.log("Payment successfully created:", newPayment.toJSON());
+        } else {
+          console.log("Payment already exists for this request");
+        }
       }
     });
 
@@ -57,7 +65,7 @@ exports.updateStatus = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Gagal memperbarui status project",
-      error,
+      error: error.message,
     });
   }
 };
