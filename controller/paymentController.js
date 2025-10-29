@@ -204,3 +204,20 @@ exports.updatePaymentStatus = async (req, res) => {
     res.status(500).json({ success: false, message: 'Gagal memperbarui status pembayaran' });
   }
 };
+
+exports.getPaymentByRequestId = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const payment = await Payment.findOne({
+      where: { requestId }
+    });
+    if (!payment) {
+      return res.status(404).json({ success: false, message: 'Pembayaran tidak ditemukan' });
+    }
+
+    res.status(200).json({ success: true, data: payment });
+  } catch (error) {
+    console.error('Error getPaymentByRequestId:', error);
+    res.status(500).json({ success: false, message: 'Gagal mengambil data pembayaran' });
+  }
+};
