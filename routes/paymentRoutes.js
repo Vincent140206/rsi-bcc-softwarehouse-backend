@@ -6,7 +6,7 @@ const { uploadPaymentProof } = require('../middleware/upload');
 router.get('/user/:userId', paymentController.getPaymentsByUser);
 
 router.get('/all', paymentController.getAllPayments);
-router.get('/:paymentId', paymentController.getPaymentById);
+router.get('/:paymentId', paymentController.getPaymentByRequestId);
 router.put('/update-status/:paymentId', paymentController.updatePaymentStatus);
 
 router.post('/upload-proof', 
