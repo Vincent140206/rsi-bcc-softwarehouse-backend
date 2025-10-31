@@ -198,8 +198,8 @@ exports.assignMembers = async (req, res) => {
     const emailResults = [];
 
     for (const item of members) {
-      if (!item.memberId || !item.role) {
-        throw new Error('Each member must have memberId and role');
+      if (!item.memberId) {
+        throw new Error('Each member must have memberId specified');
       }
 
       await Assignment.create({
