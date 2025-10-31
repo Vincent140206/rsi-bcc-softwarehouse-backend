@@ -205,7 +205,7 @@ exports.assignMembers = async (req, res) => {
       await Assignment.create({
         projectId,
         memberId: item.memberId,
-        role: item.role
+        message: `Member ${member.name} assigned to project successfully`
       }, { transaction });
 
       const member = await Member.findByPk(item.memberId);
