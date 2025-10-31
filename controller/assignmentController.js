@@ -8,7 +8,7 @@ const createAssignmentEmailTemplate = (member, projectId, role) => {
   return {
     from: process.env.EMAIL_USER,
     to: member.email,
-    subject: `🎯 Penugasan Baru: ${role} - Proyek ${projectId}`,
+    subject: `🎯 Penugasan Baru: ${member.role} - Proyek ${projectId}`,
     html: generateEmailHTML(member, projectId, role),
     text: generateEmailText(member, projectId, role)
   };
@@ -117,7 +117,7 @@ const generateEmailHTML = (member, projectId, role) => {
           
           <div class="info-box">
             <p><strong>ID Proyek:</strong> ${projectId}</p>
-            <p><strong>Role Anda:</strong> ${role}</p>
+            <p><strong>Role Anda:</strong> ${member.role}</p>
             <p><strong>Tanggal Penugasan:</strong> ${assignmentDate}</p>
           </div>
           
