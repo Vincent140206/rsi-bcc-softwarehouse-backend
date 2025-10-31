@@ -3,6 +3,7 @@ const Member = require('../models/Member');
 const transporter = require('../config/email');
 const sequelize = require('../config/db');
 const Notification = require('../models/Notification');
+const ProjectMembers = require('../models/ProjectMembers');
 
 const createAssignmentEmailTemplate = (member, projectId, role) => {
   return {
@@ -208,7 +209,7 @@ exports.assignMembers = async (req, res) => {
         throw new Error(`Member with ID ${item.memberId} not found`);
       }
 
-      await ProjectMember.create({
+      await ProjectMembers.create({
         projectId,
         memberId: member.id
       }, { transaction });
