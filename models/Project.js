@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-const RequestProjectData = require('./models/RequestProjectData');
+const RequestProjectData = require('./models/requestProjectData');
 const Member = require('./Member');
 
 const Project = sequelize.define('Project', {
@@ -22,7 +22,7 @@ const Project = sequelize.define('Project', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'RequestProjectData',
+      model: 'requestProjectData',
       key: 'id'
     },
     onDelete: 'CASCADE',
