@@ -20,7 +20,7 @@ const Project = sequelize.define('Project', {
   },
   requestId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     references: {
       model: 'RequestProjectData',
       key: 'id'
