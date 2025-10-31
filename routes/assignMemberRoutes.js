@@ -7,7 +7,7 @@ const NotificationController = require('../controllers/NotificationController');
 
 router.get('/members', TeamManagementController.getMemberList);
 
-router.post('/assign', AssignmentController.assignMembers);
+router.post('/', AssignmentController.assignMembers);
 
 router.get('/notifications/:memberId', NotificationController.getNotifications);
 
