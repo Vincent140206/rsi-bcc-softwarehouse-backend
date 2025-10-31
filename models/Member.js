@@ -3,7 +3,8 @@ module.exports = (sequelize, DataTypes) => {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     name: DataTypes.STRING,
     role: DataTypes.STRING,
-    status: { type: DataTypes.STRING, defaultValue: 'available' }
+    status: { type: DataTypes.STRING, defaultValue: 'available' },
+    email: { type: DataTypes.STRING, allowNull: false },
   });
   return Member;
 };

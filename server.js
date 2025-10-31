@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const sequelize = require("./config/db");
+require('dotenv').config();
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use("/rsi/api", protectedRoutes);
 app.use('/rsi/api/request', requestRoutes);
 app.use('/rsi/api/analysis', projectAnalysisRoutes);
 app.use('/rsi/api/payment', paymentRoutes);
+app.use('/rsi/api/assign', require('./routes/assignMemberRoutes'));
 
 app.get('/rsi/', (req, res) => {
   res.send('Project Rekayasa Sistem Informasi');
