@@ -34,7 +34,7 @@ exports.analyzeProject = async (req, res) => {
     if (decision.toLowerCase() === 'approved') {
       createdProject = await Project.create({
         name: request.projectName || `Project-${request.id}`,
-        description: request.description || 'Tidak ada deskripsi',
+        description: request.projectDescription || 'Tidak ada deskripsi',
         requestId: request.requestId,
       }, { transaction });
     }
