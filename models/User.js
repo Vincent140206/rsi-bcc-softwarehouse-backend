@@ -12,9 +12,12 @@ const User = sequelize.define('User', {
     allowNull: false
   },
   email: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.STRING,
     allowNull: false,
-    unique: true
+    unique: {
+      name: 'unique_email',
+      msg: 'Email must be unique'
+    }
   },
   password: {
     type: DataTypes.STRING(100),
@@ -31,6 +34,7 @@ const User = sequelize.define('User', {
     type: DataTypes.BOOLEAN,
     defaultValue: true
   },
+  
 }, {
   timestamps: true,
   createdAt: 'created_at',
