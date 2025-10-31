@@ -254,3 +254,28 @@ exports.assignMembers = async (req, res) => {
     });
   }
 };
+
+exports.getMemberProjects = async (req, res) => {
+  try {
+    const { memberId } = req.params;
+    const assignments = await ProjectMembers.findAll({ where: { memberId } });
+    res.json(assignments);
+  } catch (error) {
+    console.error('Error fetching member projects:', error);
+    res.status(500).json({ error: 'Failed to fetch member projects' });
+  }
+};
+
+exports.getAssignedMembers = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const assignments = await ProjectMembers.findAll({ where: { projectId } });
+    res.json(assignments);
+  } catch (error) {
+    console.error('Error fetching assigned members:', error);
+    res.status(500).json({
+      error: 'Failed to fetch assigned members',
+      details: error.message
+    });
+  }
+};
