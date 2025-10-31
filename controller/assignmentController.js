@@ -208,9 +208,14 @@ exports.assignMembers = async (req, res) => {
         throw new Error(`Member with ID ${item.memberId} not found`);
       }
 
+      await ProjectMember.create({
+        projectId,
+        memberId: member.id
+      }, { transaction });
+
       await Notification.create({
         memberId: member.id,
-        message: `Member ${member.name} assigned successfully`
+        message: `Member ${member.name} assigned to Project ID ${projectId}`
       }, { transaction });
 
       await member.update({ status: 'assigned' }, { transaction });
