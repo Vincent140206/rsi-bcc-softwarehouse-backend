@@ -202,16 +202,15 @@ exports.assignMembers = async (req, res) => {
         throw new Error('Each member must have memberId specified');
       }
 
-      await Assignment.create({
-        projectId,
-        memberId: item.memberId,
-        message: `Member ${member.name} assigned to project successfully`
-      }, { transaction });
+      try {
+        const member = await Member.findOne({ where: { id: someId } });
 
-      const member = await Member.findByPk(item.memberId);
-      
-      if (!member) {
-        throw new Error(`Member with ID ${item.memberId} not found`);
+        await Notification.create({
+          memberId: member.id,
+          message: `Member ${member.name} assigned successfully`
+        });
+      } catch (error) {
+        console.error('Error creating notification:', error);
       }
 
       await member.update({ status: 'assigned' }, { transaction });
