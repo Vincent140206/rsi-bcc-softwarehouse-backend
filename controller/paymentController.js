@@ -14,6 +14,10 @@ exports.getPaymentsByUser = async (req, res) => {
       order: [['uploadedAt', 'DESC']]
     });
 
+    if(payments.length === 0) {
+      return res.status(404).json({ success: false, message: 'Tidak ada pembayaran ditemukan untuk user ini' });
+    } 
+
     res.status(200).json({ success: true, data: payments });
   } catch (error) {
     console.error('Error getPaymentsByUser:', error);
