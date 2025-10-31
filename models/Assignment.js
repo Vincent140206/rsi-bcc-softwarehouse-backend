@@ -1,39 +1,54 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
-const Member = require('./Member');
-
-const Notification = sequelize.define('Notification', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-    allowNull: false
-  },
-  memberId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'Member',
-      key: 'id'
+module.exports = (sequelize, DataTypes) => {
+  const Assignment = sequelize.define('Assignment', {
+    id: { 
+      type: DataTypes.INTEGER, 
+      primaryKey: true, 
+      autoIncrement: true 
+    },
+    projectId: { 
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Projects',
+        key: 'id'
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    },
+    memberId: { 
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Member',
+        key: 'id'
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    },
+    role: { 
+      type: DataTypes.STRING,
+      allowNull: false 
+    },
+    status: { 
+      type: DataTypes.STRING, 
+      allowNull: false,
+      defaultValue: 'active'
     }
-  },
-  message: {
-    type: DataTypes.STRING(255),
-    allowNull: false
-  },
-  isRead: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  }
-}, {
-  tableName: 'Notifications',
-  timestamps: false
-});
+  }, {
+    tableName: 'Assignments',
+    timestamps: false
+  });
 
-Notification.belongsTo(Member, {
-  foreignKey: 'memberId',
-  targetKey: 'id',
-  onDelete: 'CASCADE'
-});
+  Assignment.associate = (models) => {
+    Assignment.belongsTo(models.Project, { 
+      foreignKey: 'projectId',
+      as: 'project'
+    });
+    Assignment.belongsTo(models.Member, { 
+      foreignKey: 'memberId',
+      as: 'member'
+    });
+  };
 
-module.exports = Notification;
+  return Assignment;
+};
