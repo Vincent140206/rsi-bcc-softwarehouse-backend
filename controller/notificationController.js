@@ -1,4 +1,5 @@
-const { Notification, Member } = require('../models');
+const Notification = require('../models/Notification');
+const Member = require('../models/Member');
 
 exports.getNotificationsForMember = async (req, res) => {
     try {

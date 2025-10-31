@@ -11,6 +11,7 @@ const protectedRoutes = require("./routes/protected");
 const requestRoutes = require('./routes/requestFormRoutes');
 const projectAnalysisRoutes = require('./routes/projectAnalysisRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const assignMemberRoutes = require('./routes/assignMemberRoutes');
 
 const app = express();
 
@@ -31,7 +32,7 @@ app.use("/rsi/api", protectedRoutes);
 app.use('/rsi/api/request', requestRoutes);
 app.use('/rsi/api/analysis', projectAnalysisRoutes);
 app.use('/rsi/api/payment', paymentRoutes);
-app.use('/rsi/api/assign', require('./routes/assignMemberRoutes'));
+app.use('/rsi/api/assign', assignMemberRoutes);
 
 app.get('/rsi/', (req, res) => {
   res.send('Project Rekayasa Sistem Informasi');

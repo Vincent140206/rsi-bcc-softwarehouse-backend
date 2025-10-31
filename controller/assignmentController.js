@@ -1,4 +1,5 @@
-const { Assignment, Member } = require('../models');
+const Assignment = require('../models/Assignment');
+const Member = require('../models/Member');
 const transporter = require('../config/email');
 
 const createAssignmentEmailTemplate = (member, projectId, role) => {
