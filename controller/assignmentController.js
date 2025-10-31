@@ -210,8 +210,8 @@ exports.assignMembers = async (req, res) => {
       }
 
       await ProjectMembers.create({
-        projectId,
-        memberId: member.id
+        projectId: projectId,
+        memberId: member.id,
       }, { transaction });
 
       await Notification.create({
