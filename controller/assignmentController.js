@@ -1,6 +1,7 @@
 const Assignment = require('../models/Assignment');
 const Member = require('../models/Member');
 const transporter = require('../config/email');
+const sequelize = require('../config/db');
 
 const createAssignmentEmailTemplate = (member, projectId, role) => {
   return {
@@ -191,7 +192,7 @@ exports.assignMembers = async (req, res) => {
     });
   }
 
-  const transaction = await Assignment.sequelize.transaction();
+  const transaction = await sequelize.transaction();
 
   try {
     const emailResults = [];
