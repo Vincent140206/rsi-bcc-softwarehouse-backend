@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const TeamManagementController = require('../controllers/teamManagementController');
-const AssignmentController = require('../controllers/assignmentController');
-const NotificationController = require('../controllers/notificationController');
+const TeamManagementController = require('../controller/teamManagementController');
+const AssignmentController = require('../controller/assignmentController');
+const NotificationController = require('../controller/notificationController');
 
 router.get('/members', TeamManagementController.getMemberList);
 
