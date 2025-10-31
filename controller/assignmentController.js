@@ -187,8 +187,8 @@ exports.assignMembers = async (req, res) => {
   const { projectId, members } = req.body;
 
   if (!projectId || !members || !Array.isArray(members) || members.length === 0) {
-    return res.status(400).json({ 
-      error: 'Invalid input. projectId and members array are required.' 
+    return res.status(400).json({
+      error: 'Invalid input. projectId and members array are required.'
     });
   }
 
@@ -202,16 +202,15 @@ exports.assignMembers = async (req, res) => {
         throw new Error('Each member must have memberId specified');
       }
 
-      try {
-        const member = await Member.findOne({ where: { id: someId } });
-
-        await Notification.create({
-          memberId: member.id,
-          message: `Member ${member.name} assigned successfully`
-        });
-      } catch (error) {
-        console.error('Error creating notification:', error);
+      const member = await Member.findOne({ where: { id: item.memberId } });
+      if (!member) {
+        throw new Error(`Member with ID ${item.memberId} not found`);
       }
+
+      await Notification.create({
+        memberId: member.id,
+        message: `Member ${member.name} assigned successfully`
+      }, { transaction });
 
       await member.update({ status: 'assigned' }, { transaction });
 
@@ -226,16 +225,15 @@ exports.assignMembers = async (req, res) => {
     await transaction.commit();
 
     const failedEmails = emailResults.filter(result => !result.success);
-    
     if (failedEmails.length > 0) {
-      return res.status(207).json({ 
+      return res.status(207).json({
         message: 'Assignment completed but some emails failed to send',
         assignments: 'success',
         emailResults
       });
     }
 
-    res.json({ 
+    res.json({
       message: 'Assignment and email notifications completed successfully',
       emailResults
     });
@@ -243,9 +241,9 @@ exports.assignMembers = async (req, res) => {
   } catch (err) {
     await transaction.rollback();
     console.error('Assignment error:', err);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Assignment failed',
-      details: err.message 
+      details: err.message
     });
   }
 };
