@@ -35,7 +35,7 @@ exports.analyzeProject = async (req, res) => {
       createdProject = await Project.create({
         name: request.projectName || `Project-${request.id}`,
         description: request.description || 'Tidak ada deskripsi',
-        requestId: request.id 
+        requestId: request.requestId,
       }, { transaction });
     }
 
