@@ -28,7 +28,7 @@ const Member = sequelize.define('Member', {
     validate: { isEmail: true }
   }
 }, {
-  tableName: 'Members',
+  tableName: 'Member',
   timestamps: false
 });
 
