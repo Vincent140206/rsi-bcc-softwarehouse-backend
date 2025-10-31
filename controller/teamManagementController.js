@@ -2,7 +2,7 @@ const Member = require('../models/Member');
 
 exports.getMemberList = async (req, res) => {
   try {
-    const members = await Member.findAll({ where: { status: 'Available' } });
+    const members = await Member.findAll({ where: { status: 'available' } });
     if (members.length === 0) {
       return res.status(404).json({ success: false, message: 'No available members found' });
     }
