@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-const RequestProjectData = require('./models/requestProjectData');
+const RequestProjectData = require('./requestProjectData');
 const Member = require('./Member');
 
 const Project = sequelize.define('Project', {
