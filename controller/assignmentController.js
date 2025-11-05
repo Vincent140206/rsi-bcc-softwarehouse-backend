@@ -301,13 +301,26 @@ exports.getMemberProjects = async (req, res) => {
 exports.getAssignedMembers = async (req, res) => {
   try {
     const { projectId } = req.params;
-    const assignments = await Project.findAll({ where: { projectId } });
-    res.status(200).json(assignments);
-  } catch (error) {
-    console.error('Error fetching assigned members:', error);
-    res.status(500).json({
-      error: 'Failed to fetch assigned members',
-      details: error.message
+    const project = await Project.findByPk(projectId, {
+      include: [
+        {
+          association: 'members',
+          through: { attributes: [] }
+        }
+      ]
     });
+    
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    if (project.members.length === 0) {
+      return res.status(404).json({ message: 'No members assigned to this project' });
+    }
+    
+    res.status(200).json(project.members);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch members', details: error.message });
   }
 };
