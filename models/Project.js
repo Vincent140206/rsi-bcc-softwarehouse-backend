@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 const RequestProjectData = require('./requestProjectData');
-const Member = require('./Member');
 
 const Project = sequelize.define('Project', {
   id: {
@@ -31,14 +30,6 @@ const Project = sequelize.define('Project', {
 }, {
   tableName: 'Projects',
   timestamps: false
-});
-
-Project.belongsTo(RequestProjectData, { foreignKey: 'requestId' });
-
-Project.belongsToMany(Member, {
-  through: 'ProjectMembers',
-  foreignKey: 'projectId',
-  otherKey: 'memberId'
 });
 
 module.exports = Project;
