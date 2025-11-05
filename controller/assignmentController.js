@@ -272,7 +272,7 @@ exports.assignMembers = async (req, res) => {
 exports.getMemberProjects = async (req, res) => {
   try {
     const { memberId } = req.params;
-    const assignments = await ProjectMembers.findAll({ where: { memberId } });
+    const assignments = await Assignment.findAll({ where: { memberId } });
     res.status(200).json(assignments);
   } catch (error) {
     console.error('Error fetching member projects:', error);
