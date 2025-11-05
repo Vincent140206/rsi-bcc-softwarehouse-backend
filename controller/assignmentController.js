@@ -274,26 +274,22 @@ exports.getMemberProjects = async (req, res) => {
     const { memberId } = req.params;
 
     const member = await Member.findByPk(memberId, {
-      include: {
-        model: Project,
-        as: 'projects',
-        through: { attributes: [] }
-      }
+      include: [
+        {
+          association: 'projects',
+          through: { attributes: [] }
+        }
+      ]
     });
 
     if (!member) {
       return res.status(404).json({ message: 'Member not found' });
     }
 
-    res.status(200).json({
-      memberId: member.id,
-      memberName: member.name,
-      projects: member.projects
-    });
-
+    res.json(member.projects);
   } catch (error) {
-    console.error('Error fetching projects by member:', error);
-    res.status(500).json({ error: 'Failed to fetch projects', details: error.message });
+    console.error(error);
+    res.status(500).json({ message: 'Failed to fetch projects', details: error.message });
   }
 };
 
