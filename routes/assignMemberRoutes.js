@@ -10,6 +10,6 @@ router.get('/members', TeamManagementController.getMemberList);
 router.post('/', AssignmentController.assignMembers);
 router.get('/members/:memberId/projects', AssignmentController.getMemberProjects);
 router.get('/:projectId/members', AssignmentController.getAssignedMembers);
-router.get('/notifications/:memberId', NotificationController.getNotifications);
+// router.get('/notifications/:memberId', NotificationController.getNotifications);
 
 module.exports = router;
