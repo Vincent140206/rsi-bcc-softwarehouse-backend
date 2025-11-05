@@ -286,7 +286,11 @@ exports.getMemberProjects = async (req, res) => {
       return res.status(404).json({ message: 'Member not found' });
     }
 
-    res.json(member.projects);
+    if (member.projects.length === 0) {
+      return res.status(404).json({ message: 'No projects assigned to this member' });
+    }
+    
+    res.status(200).json(member.projects);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Failed to fetch projects', details: error.message });
