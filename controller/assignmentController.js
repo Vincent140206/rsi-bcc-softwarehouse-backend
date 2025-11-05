@@ -4,6 +4,7 @@ const transporter = require('../config/email');
 const sequelize = require('../config/db');
 const Notification = require('../models/Notification');
 const ProjectMembers = require('../models/ProjectMembers');
+const Assignment = require('../models/Assignment');
 
 const createAssignmentEmailTemplate = (member, projectId, role) => {
   return {
@@ -16,7 +17,7 @@ const createAssignmentEmailTemplate = (member, projectId, role) => {
 };
 
 const generateEmailHTML = (member, projectId, role) => {
-  const dashboardUrl = process.env.DASHBOARD_URL || 'https://yourdomain.com/dashboard';
+  const dashboardUrl = process.env.DASHBOARD_URL || 'https://pg-vincent.bccdev.id/rsi/login';
   const assignmentDate = new Date().toLocaleDateString('id-ID', { 
     weekday: 'long', 
     year: 'numeric', 
@@ -151,7 +152,7 @@ const generateEmailHTML = (member, projectId, role) => {
 };
 
 const generateEmailText = (member, projectId, role) => {
-  const dashboardUrl = process.env.DASHBOARD_URL || 'https://yourdomain.com/dashboard';
+  const dashboardUrl = process.env.DASHBOARD_URL || 'https://bccfilkom.ub.ac.id/';
   const assignmentDate = new Date().toLocaleDateString('id-ID');
 
   return `Halo ${member.name},
@@ -219,6 +220,20 @@ exports.assignMembers = async (req, res) => {
         message: `Member ${member.name} assigned to Project ID ${projectId}`
       }, { transaction });
 
+      // await Notification.create({
+      //   senderId: req.user?.id || 1,
+      //   receiverId: member.id,
+      //   projectId: projectId,
+      //   message: `Anda telah ditugaskan ke proyek ID ${projectId} oleh ${req.user?.name || 'Admin'}`
+      // }, { transaction });
+
+      // await Notification.create({
+      //   senderId: member.id,
+      //   receiverId: req.user?.id || 1,
+      //   projectId: projectId,
+      //   message: `Member ${member.name} telah berhasil ditugaskan ke proyek ID ${projectId}`
+      // }, { transaction });
+
       await member.update({ status: 'assigned' }, { transaction });
 
       const emailResult = await sendAssignmentEmail(member, projectId, item.role);
@@ -269,7 +284,7 @@ exports.getMemberProjects = async (req, res) => {
 exports.getAssignedMembers = async (req, res) => {
   try {
     const { projectId } = req.params;
-    const assignments = await ProjectMembers.findAll({ where: { projectId } });
+    const assignments = await Assignment.findAll({ where: { projectId } });
     res.status(200).json(assignments);
   } catch (error) {
     console.error('Error fetching assigned members:', error);

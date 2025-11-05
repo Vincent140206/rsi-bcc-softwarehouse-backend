@@ -6,34 +6,38 @@ const Notification = sequelize.define('Notification', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true,
+    autoIncrement: true
+  },
+  senderId: {
+    type: DataTypes.INTEGER,
     allowNull: false
   },
-  memberId: {
+  receiverId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'Member',
-      key: 'id'
-    }
+    allowNull: false
+  },
+  projectId: {
+    type: DataTypes.INTEGER,
+    allowNull: true
   },
   message: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.TEXT,
     allowNull: false
   },
   isRead: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
+  },
+  parentId: {
+    type: DataTypes.INTEGER,
+    allowNull: true
   }
 }, {
-  tableName: 'Notifications',
-  timestamps: false
+  timestamps: true,
+  tableName: 'notifications'
 });
 
-Notification.belongsTo(Member, {
-  foreignKey: 'memberId',
-  targetKey: 'id',
-  onDelete: 'CASCADE'
-});
+Notification.belongsTo(Member, { as: 'sender', foreignKey: 'senderId' });
+Notification.belongsTo(Member, { as: 'receiver', foreignKey: 'receiverId' });
 
 module.exports = Notification;
