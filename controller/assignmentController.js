@@ -4,7 +4,6 @@ const transporter = require('../config/email');
 const sequelize = require('../config/db');
 const Notification = require('../models/Notification');
 const ProjectMembers = require('../models/ProjectMembers');
-const Assignment = require('../models/Assignment');
 
 const createAssignmentEmailTemplate = (member, projectId, role) => {
   return {
