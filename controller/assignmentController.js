@@ -4,6 +4,7 @@ const transporter = require('../config/email');
 const sequelize = require('../config/db');
 const Notification = require('../models/Notification');
 const { ProjectMembers } = require('../models');
+const { Project } = require('../models');
 
 const createAssignmentEmailTemplate = (member, projectId, role) => {
   return {
@@ -289,7 +290,7 @@ exports.getMemberProjects = async (req, res) => {
     if (member.projects.length === 0) {
       return res.status(404).json({ message: 'No projects assigned to this member' });
     }
-    
+
     res.status(200).json(member.projects);
   } catch (error) {
     console.error(error);
