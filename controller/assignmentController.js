@@ -272,18 +272,35 @@ exports.assignMembers = async (req, res) => {
 exports.getMemberProjects = async (req, res) => {
   try {
     const { memberId } = req.params;
-    const assignments = await Assignment.findAll({ where: { memberId } });
-    res.status(200).json(assignments);
+
+    const member = await Member.findByPk(memberId, {
+      include: {
+        model: Project,
+        as: 'projects',
+        through: { attributes: [] }
+      }
+    });
+
+    if (!member) {
+      return res.status(404).json({ message: 'Member not found' });
+    }
+
+    res.status(200).json({
+      memberId: member.id,
+      memberName: member.name,
+      projects: member.projects
+    });
+
   } catch (error) {
-    console.error('Error fetching member projects:', error);
-    res.status(500).json({ error: 'Failed to fetch member projects', details: error.message });
+    console.error('Error fetching projects by member:', error);
+    res.status(500).json({ error: 'Failed to fetch projects', details: error.message });
   }
 };
 
 exports.getAssignedMembers = async (req, res) => {
   try {
     const { projectId } = req.params;
-    const assignments = await Assignment.findAll({ where: { projectId } });
+    const assignments = await Project.findAll({ where: { projectId } });
     res.status(200).json(assignments);
   } catch (error) {
     console.error('Error fetching assigned members:', error);

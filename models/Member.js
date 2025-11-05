@@ -32,4 +32,11 @@ const Member = sequelize.define('Member', {
   timestamps: false
 });
 
+Member.belongsToMany(Project, {
+  through: 'ProjectMembers',
+  foreignKey: 'memberId',
+  otherKey: 'projectId',
+  as: 'projects'
+});
+
 module.exports = Member;
