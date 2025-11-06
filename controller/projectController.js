@@ -14,7 +14,7 @@ exports.updateProgress = async (req, res) => {
     const { id } = req.params;
     const { title, description, status } = req.body;
 
-    const progress = await Progress.findByPk(id, { include: { model: Project, as: 'project' } });
+    const progress = await Project.findByPk(id, { include: { model: Progress, as: 'progressList' } });
     if (!progress) {
       return res.status(404).json({ error: 'Progress not found' });
     }
