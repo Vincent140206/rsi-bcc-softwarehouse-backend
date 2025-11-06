@@ -11,35 +11,15 @@ const Notification = sequelize.define('Notification', {
   },
   senderId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Member,
-      key: 'id'
-    },
-    onDelete: 'NO ACTION',
-    onUpdate: 'CASCADE',
-    name: 'fk_notification_sender'
+    allowNull: false
   },
   receiverId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Member,
-      key: 'id'
-    },
-    onDelete: 'NO ACTION',
-    onUpdate: 'CASCADE',
-    name: 'fk_notification_receiver'
+    allowNull: false
   },
   projectId: {
     type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: Project,
-      key: 'id'
-    },
-    onDelete: 'SET NULL',
-    onUpdate: 'CASCADE'
+    allowNull: true
   },
   message: {
     type: DataTypes.TEXT,
@@ -52,23 +32,34 @@ const Notification = sequelize.define('Notification', {
   parentId: {
     type: DataTypes.INTEGER,
     allowNull: true
-  },
-  createdAt: {
-    type: DataTypes.DATE,
-    allowNull: false
-  },
-  updatedAt: {
-    type: DataTypes.DATE,
-    allowNull: false
   }
 }, {
   tableName: 'notifications',
   timestamps: true
 });
 
-module.exports = Notification;
+Notification.belongsTo(Member, {
+  as: 'Sender',
+  foreignKey: 'senderId',
+  constraints: true,
+  onDelete: 'NO ACTION',
+  onUpdate: 'CASCADE'
+});
 
-Notification.belongsTo(Member, { as: 'sender', foreignKey: 'senderId' });
-Notification.belongsTo(Member, { as: 'receiver', foreignKey: 'receiverId' });
+Notification.belongsTo(Member, {
+  as: 'Receiver',
+  foreignKey: 'receiverId',
+  constraints: true,
+  onDelete: 'NO ACTION',
+  onUpdate: 'CASCADE'
+});
+
+Notification.belongsTo(Project, {
+  as: 'Project',
+  foreignKey: 'projectId',
+  constraints: true,
+  onDelete: 'SET NULL',
+  onUpdate: 'CASCADE'
+});
 
 module.exports = Notification;
