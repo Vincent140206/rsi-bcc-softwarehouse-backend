@@ -31,10 +31,10 @@ exports.updateProgress = async (req, res) => {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.NOTIFY_EMAIL || 'admin@example.com',
-      subject: `Update Progress: ${project.name}`,
+      subject: `Update Progress: ${project.id}`,
       html: `
         <h3>Progress Update</h3>
-        <p><b>Project:</b> ${project.name}</p>
+        <p><b>Project:</b> ${project.id}</p>
         <p><b>Title:</b> ${progress.title}</p>
         <p><b>Description:</b> ${progress.description}</p>
         <p><b>Status:</b> ${progress.status}</p>
