@@ -12,7 +12,7 @@ const requestRoutes = require('./routes/requestFormRoutes');
 const projectAnalysisRoutes = require('./routes/projectAnalysisRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const assignMemberRoutes = require('./routes/assignMemberRoutes');
-const progressRoutes = require('./routes/projectRoutes');
+const projectRoutes = require('./routes/projectRoutes');
 
 const app = express();
 
@@ -34,7 +34,7 @@ app.use('/rsi/api/request', requestRoutes);
 app.use('/rsi/api/analysis', projectAnalysisRoutes);
 app.use('/rsi/api/payment', paymentRoutes);
 app.use('/rsi/api/assign', assignMemberRoutes);
-app.use('/rsi/api/project', progressRoutes);
+app.use('/rsi/api/project', projectRoutes);
 
 app.get('/rsi/', (req, res) => {
   res.send('Project Rekayasa Sistem Informasi');
