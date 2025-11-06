@@ -14,7 +14,10 @@ exports.updateProgress = async (req, res) => {
     const { id } = req.params;
     const { title, description, status } = req.body;
 
-    const progress = await Project.findByPk(id, { include: { model: Progress, as: 'progressList' } });
+    const progress = await Progress.findByPk(id, {
+      include: { model: Project, as: 'project' }
+    });
+
     if (!progress) {
       return res.status(404).json({ error: 'Progress not found' });
     }
@@ -26,15 +29,13 @@ exports.updateProgress = async (req, res) => {
       updatedAt: new Date()
     });
 
-    const project = progress.project;
-
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.NOTIFY_EMAIL || 'admin@example.com',
-      subject: `Update Progress: ${project.id}`,
+      subject: `Update Progress: ${progress.project.name}`,
       html: `
         <h3>Progress Update</h3>
-        <p><b>Project:</b> ${project.id}</p>
+        <p><b>Project:</b> ${progress.project.name}</p>
         <p><b>Title:</b> ${progress.title}</p>
         <p><b>Description:</b> ${progress.description}</p>
         <p><b>Status:</b> ${progress.status}</p>
