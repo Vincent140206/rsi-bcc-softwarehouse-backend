@@ -9,51 +9,43 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-exports.updateProgress = async (req, res) => {
+exports.addProgress = async (req, res) => {
   try {
-    const { projectId, progressId } = req.params;
+    const { projectId } = req.params;
     const { title, description, status } = req.body;
 
-    const progress = await Progress.findOne({
-      where: { id: progressId, projectId },
-      include: { model: Project, as: 'project' }
-    });
-
-    if (!progress) {
-      return res.status(404).json({ error: 'Progress not found for this project' });
+    const project = await Project.findByPk(projectId);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
     }
 
-    await progress.update({
-      title: title || progress.title,
-      description: description || progress.description,
-      status: status || progress.status,
-      updatedAt: new Date()
+    const newProgress = await Progress.create({
+      projectId,
+      title,
+      description,
+      status
     });
 
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.NOTIFY_EMAIL || 'admin@example.com',
-      subject: `Update Progress - ${progress.project.name}`,
+      subject: `Progress Baru untuk Project #${projectId}`,
       html: `
-        <h3>Progress Update</h3>
-        <p><b>Project:</b> ${progress.project.name}</p>
-        <p><b>Title:</b> ${progress.title}</p>
-        <p><b>Description:</b> ${progress.description}</p>
-        <p><b>Status:</b> ${progress.status}</p>
-        <p><b>Updated At:</b> ${progress.updatedAt}</p>
+        <h3>Progress Baru Ditambahkan</h3>
+        <p><b>Project:</b> ${project.name}</p>
+        <p><b>Title:</b> ${title}</p>
+        <p><b>Description:</b> ${description}</p>
+        <p><b>Status:</b> ${status}</p>
       `
     });
 
-    res.status(200).json({
-      message: 'Progress updated and email sent successfully',
-      updatedProgress: progress
+    res.status(201).json({
+      message: 'Progress added and email sent successfully',
+      progress: newProgress
     });
   } catch (error) {
-    console.error('Error updating progress:', error);
-    res.status(500).json({
-      error: 'Failed to update progress',
-      details: error.message
-    });
+    console.error('Error adding progress:', error);
+    res.status(500).json({ error: 'Failed to add progress', details: error.message });
   }
 };
 
