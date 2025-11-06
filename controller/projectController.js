@@ -1,4 +1,4 @@
-const { Project, Progress } = require('../models');
+const { Project, Progress, Member } = require('../models');
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
@@ -14,7 +14,16 @@ exports.addProgress = async (req, res) => {
     const { projectId } = req.params;
     const { title, description, status } = req.body;
 
-    const project = await Project.findByPk(projectId);
+    const project = await Project.findByPk(projectId, {
+      include: [
+        {
+          model: Member,
+          as: 'members',
+          attributes: ['id', 'name', 'email']
+        }
+      ]
+    });
+
     if (!project) {
       return res.status(404).json({ error: 'Project not found' });
     }
@@ -26,26 +35,36 @@ exports.addProgress = async (req, res) => {
       status
     });
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: process.env.NOTIFY_EMAIL || 'admin@example.com',
-      subject: `Progress Baru untuk Project #${projectId}`,
-      html: `
-        <h3>Progress Baru Ditambahkan</h3>
-        <p><b>Project:</b> ${project.name}</p>
-        <p><b>Title:</b> ${title}</p>
-        <p><b>Description:</b> ${description}</p>
-        <p><b>Status:</b> ${status}</p>
-      `
-    });
+    for (const member of project.members) {
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: member.email,
+        subject: `Update Progress Project: ${project.name}`,
+        html: `
+          <h3>Hai ${member.name},</h3>
+          <p>Progress baru telah ditambahkan pada proyek <b>${project.name}</b>:</p>
+          <ul>
+            <li><b>Judul:</b> ${title}</li>
+            <li><b>Deskripsi:</b> ${description}</li>
+            <li><b>Status:</b> ${status}</li>
+          </ul>
+          <p>Silakan cek dashboard untuk informasi lebih lanjut.</p>
+          <hr>
+          <small>Notifikasi otomatis dari sistem project management</small>
+        `
+      });
+    }
 
     res.status(201).json({
-      message: 'Progress added and email sent successfully',
+      message: 'Progress added and emails sent to all project members',
       progress: newProgress
     });
   } catch (error) {
-    console.error('Error adding progress:', error);
-    res.status(500).json({ error: 'Failed to add progress', details: error.message });
+    console.error('Error adding progress and sending email:', error);
+    res.status(500).json({
+      error: 'Failed to add progress or send email',
+      details: error.message
+    });
   }
 };
 
