@@ -3,6 +3,7 @@ const Project = require('./Project');
 const Member = require('./Member');
 const ProjectMembers = require('./ProjectMembers');
 const RequestProjectData = require('./requestProjectData');
+const Progress = require('./Progress');
 
 Project.belongsTo(RequestProjectData, { foreignKey: 'requestId' });
 
@@ -19,6 +20,9 @@ Member.belongsToMany(Project, {
   otherKey: 'projectId',
   as: 'projects'
 });
+
+Project.hasMany(Progress, { foreignKey: 'projectId', as: 'progressList' });
+Progress.belongsTo(Project, { foreignKey: 'projectId', as: 'project' });
 
 module.exports = {
   sequelize,

@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-const Project = require('./Project');
 
 const Progress = sequelize.define('Progress', {
   id: {
@@ -40,8 +39,5 @@ const Progress = sequelize.define('Progress', {
   tableName: 'Progress',
   timestamps: false
 });
-
-Project.hasMany(Progress, { foreignKey: 'projectId', as: 'progressList' });
-Progress.belongsTo(Project, { foreignKey: 'projectId', as: 'project' });
 
 module.exports = Progress;
