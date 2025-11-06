@@ -3,6 +3,6 @@ const router = express.Router();
 const projectController = require('../controller/projectController');
 
 router.put('/:id', projectController.updateProgress);
-router.get('/:id', projectController.getProjectWithProgress);
+router.get('/:projectId/:progressId', projectController.getProjectWithProgress);
 
 module.exports = router;
