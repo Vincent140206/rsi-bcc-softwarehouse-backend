@@ -11,15 +11,16 @@ const transporter = nodemailer.createTransport({
 
 exports.updateProgress = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { projectId, progressId } = req.params;
     const { title, description, status } = req.body;
 
-    const progress = await Progress.findByPk(id, {
+    const progress = await Progress.findOne({
+      where: { id: progressId, projectId },
       include: { model: Project, as: 'project' }
     });
 
     if (!progress) {
-      return res.status(404).json({ error: 'Progress not found' });
+      return res.status(404).json({ error: 'Progress not found for this project' });
     }
 
     await progress.update({
@@ -32,7 +33,7 @@ exports.updateProgress = async (req, res) => {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.NOTIFY_EMAIL || 'admin@example.com',
-      subject: `Update Progress: ${progress.project.name}`,
+      subject: `Update Progress - ${progress.project.name}`,
       html: `
         <h3>Progress Update</h3>
         <p><b>Project:</b> ${progress.project.name}</p>
