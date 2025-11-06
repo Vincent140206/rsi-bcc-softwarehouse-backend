@@ -1,5 +1,4 @@
-const { Project } = require('../models');
-const { Progress } = require('../models');
+const { Project, Progress } = require('../models');
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({

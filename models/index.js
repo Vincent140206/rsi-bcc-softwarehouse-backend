@@ -29,5 +29,6 @@ module.exports = {
   Project,
   Member,
   ProjectMembers,
-  RequestProjectData
+  RequestProjectData,
+  Progress
 };
