@@ -21,7 +21,7 @@ const Project = sequelize.define('Project', {
     allowNull: true,
     references: {
       model: 'RequestProjectData',
-      key: 'id'
+      key: 'requestId'
     },
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE'
