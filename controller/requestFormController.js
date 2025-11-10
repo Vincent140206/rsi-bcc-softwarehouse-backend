@@ -29,7 +29,7 @@ async function submitRequest(projectData, res) {
 async function getAllRequests(req, res) {
   try {
     const requests = await RequestProjectData.findAll({
-      order: [['created_at', 'ASC']]
+      order: [['created_at', 'DESC']]
     });
 
     return res.status(200).json({
