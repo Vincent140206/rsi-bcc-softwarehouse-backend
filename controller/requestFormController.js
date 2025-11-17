@@ -1,5 +1,5 @@
-const { parse } = require('dotenv');
 const RequestProjectData = require('../models/requestProjectData');
+const logActivity = require('../utils/logActivity');
 
 async function submitRequest(projectData, res) {
   try {
@@ -13,17 +13,22 @@ async function submitRequest(projectData, res) {
       status: 'Pending'
     });
 
+    logActivity('request_created', {
+      userId: projectData.userId,
+      projectName: projectData.projectName
+    });
+
     return res.status(201).json({
       success: true,
       message: 'Request berhasil disimpan',
       data: newRequest
     });
   } catch (error) {
-    console.error('Gagal menyimpan data:', error);
+    logActivity('request_create_failed', { error: error.message });
     return res.status(500).json({
       success: false,
       error: 'Terjadi kesalahan pada server'
-    });x
+    });
   }
 }
 
@@ -39,6 +44,8 @@ async function getAllRequests(req, res) {
       order: [['created_at', 'DESC']]
     });
 
+    logActivity('request_list_accessed', { page, limit });
+
     return res.status(200).json({
       success: true,
       message: 'Data request project berhasil diambil',
@@ -49,7 +56,7 @@ async function getAllRequests(req, res) {
       data: rows
     });
   } catch (error) {
-    console.error('Error mengambil data request:', error);
+    logActivity('request_list_failed', { error: error.message });
     return res.status(500).json({
       success: false,
       message: 'Terjadi kesalahan server',
@@ -64,15 +71,18 @@ async function getProjectDetail(req, res) {
     const project = await RequestProjectData.findByPk(requestId);
 
     if (!project) {
+      logActivity('project_not_found', { requestId });
       return res.status(404).json({ success: false, message: 'Project tidak ditemukan' });
     }
 
+    logActivity('project_detail_accessed', { requestId });
+
     res.status(200).json({ success: true, data: project });
   } catch (error) {
-    console.error('Error mengambil detail project:', error);
+    logActivity('project_detail_failed', { error: error.message });
     res.status(500).json({ success: false, message: 'Terjadi kesalahan server' });
   }
-};
+}
 
 async function getAllByUserId(req, res) {
   try {
@@ -84,11 +94,14 @@ async function getAllByUserId(req, res) {
     });
 
     if (requests.length === 0) {
+      logActivity('user_requests_empty', { userId });
       return res.status(404).json({
         success: false,
         message: 'Tidak ada request project untuk user ini'
       });
     }
+
+    logActivity('user_requests_accessed', { userId });
 
     return res.status(200).json({
       success: true,
@@ -96,6 +109,7 @@ async function getAllByUserId(req, res) {
       data: requests
     });
   } catch (error) {
+    logActivity('user_requests_failed', { error: error.message });
     return res.status(500).json({
       success: false,
       message: 'Terjadi kesalahan server',
@@ -103,6 +117,5 @@ async function getAllByUserId(req, res) {
     });
   }
 }
-
 
 module.exports = { submitRequest, getAllRequests, getProjectDetail, getAllByUserId };

@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const sequelize = require("./config/db");
+const logger = require('./utils/logger');
 require('dotenv').config();
 
 dotenv.config();
@@ -43,6 +44,17 @@ app.get('/rsi/', (req, res) => {
 app.use((err, req, res, next) => {
   console.error("Server Error:", err.stack);
   res.status(500).json({ message: "Internal Server Error", error: err.message });
+});
+
+app.use((req, res, next) => {
+  logger.info({
+    message: 'incoming_request',
+    method: req.method,
+    url: req.originalUrl,
+    body: req.body,
+    query: req.query
+  });
+  next();
 });
 
 const PORT = process.env.PORT || 5001;
