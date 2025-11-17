@@ -175,29 +175,19 @@ exports.deleteProof = async (req, res) => {
 
 exports.getAllPayments = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
-
-    const { count, rows } = await Payment.findAndCountAll({
+    const payments = await Payment.findAndCountAll({
       include: [RequestProjectData],
-      limit,
-      offset,
       order: [['uploadedAt', 'DESC']]
     });
 
-    if (rows.length === 0) {
+    if (payments.length === 0) {
       return res.status(404).json({ success: false, message: 'Tidak ada data pembayaran ditemukan' });
     }
 
     res.status(200).json({
       success: true,
       message: 'Data pembayaran berhasil diambil',
-      page,
-      limit,
-      total: count,
-      totalPages: Math.ceil(count / limit),
-      data: rows
+      data: payments
     });
   } catch (error) {
     console.error('Error getAllPayments:', error);
