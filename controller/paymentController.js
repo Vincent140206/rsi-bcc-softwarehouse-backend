@@ -186,8 +186,8 @@ exports.getAllPayments = async (req, res) => {
       order: [['uploadedAt', 'DESC']]
     });
 
-    if(payments.length === 0) {
-      return res.status(404).json({ success: false, message: 'Tidak ada pembayaran ditemukan' });
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Tidak ada data pembayaran ditemukan' });
     }
 
     res.status(200).json({
