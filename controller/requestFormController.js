@@ -1,3 +1,4 @@
+const { parse } = require('dotenv');
 const RequestProjectData = require('../models/requestProjectData');
 
 async function submitRequest(projectData, res) {
@@ -28,14 +29,24 @@ async function submitRequest(projectData, res) {
 
 async function getAllRequests(req, res) {
   try {
-    const requests = await RequestProjectData.findAll({
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await RequestProjectData.findAndCountAll({
+      limit,
+      offset,
       order: [['created_at', 'DESC']]
     });
 
     return res.status(200).json({
       success: true,
       message: 'Data request project berhasil diambil',
-      data: requests
+      page,
+      limit,
+      total: count,
+      totalPages: Math.ceil(count / limit),
+      data: rows
     });
   } catch (error) {
     console.error('Error mengambil data request:', error);
