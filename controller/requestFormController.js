@@ -34,26 +34,14 @@ async function submitRequest(projectData, res) {
 
 async function getAllRequests(req, res) {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
-
-    const { count, rows } = await RequestProjectData.findAndCountAll({
-      limit,
-      offset,
+    const request = await RequestProjectData.findAndCountAll({
       order: [['created_at', 'DESC']]
     });
-
-    logActivity('request_list_accessed', { page, limit });
 
     return res.status(200).json({
       success: true,
       message: 'Data request project berhasil diambil',
-      page,
-      limit,
-      total: count,
-      totalPages: Math.ceil(count / limit),
-      data: rows
+      data: request,
     });
   } catch (error) {
     logActivity('request_list_failed', { error: error.message });
