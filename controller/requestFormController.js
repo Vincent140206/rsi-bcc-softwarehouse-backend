@@ -126,4 +126,24 @@ async function getAllPending(req, res) {
   }
 }
 
-module.exports = { submitRequest, getAllRequests, getProjectDetail, getAllByUserId, getAllPending };
+async function getAllApproved(req, res) {
+  try {
+    const approvedRequests = await RequestProjectData.findAndCountAll({
+      where: { status: 'Approved' },
+    });
+    return res.status(200).json({
+      success: true,
+      message: 'Data request project dengan status Approved berhasil diambil',
+      data: approvedRequests
+    });
+  } catch (error) {
+    logActivity('approved_requests_failed', { error: error.message });
+    return res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan server',
+      error: error.message
+    });
+  }
+}
+
+module.exports = { submitRequest, getAllRequests, getProjectDetail, getAllByUserId, getAllPending, getAllApproved };

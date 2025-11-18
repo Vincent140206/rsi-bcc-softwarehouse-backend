@@ -27,5 +27,6 @@ router.get('/form/data', requestFormController.getAllRequests);
 router.get('/form/:requestId', requestFormController.getProjectDetail);
 router.get('/form/user/:userId', requestFormController.getAllByUserId);
 router.get('/form/status/pending', requestFormController.getAllPending);
+router.get('/form/status/approved', requestFormController.getAllApproved);
 
 module.exports = router;
