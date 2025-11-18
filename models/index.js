@@ -4,6 +4,7 @@ const Member = require('./Member');
 const ProjectMembers = require('./ProjectMembers');
 const RequestProjectData = require('./requestProjectData');
 const Progress = require('./Progress');
+const Payment = require('./Payment');
 
 Project.belongsTo(RequestProjectData, { foreignKey: 'requestId' });
 
@@ -21,6 +22,9 @@ Member.belongsToMany(Project, {
   as: 'projects'
 });
 
+RequestProjectData.hasOne(Payment, { foreignKey: 'requestId' });
+Payment.belongsTo(RequestProjectData, { foreignKey: 'requestId' });
+
 Project.hasMany(Progress, { foreignKey: 'projectId', as: 'progressList' });
 Progress.belongsTo(Project, { foreignKey: 'projectId', as: 'project' });
 
@@ -30,5 +34,6 @@ module.exports = {
   Member,
   ProjectMembers,
   RequestProjectData,
-  Progress
+  Progress,
+  Payment 
 };
