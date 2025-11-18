@@ -95,7 +95,12 @@ exports.getAllProjects = async (req, res) => {
       include: [{ model: Progress, as: 'progressList' }]
     });
 
-    res.status(200).json(projects);
+    res.status(200).json({
+      message: 'Projects fetched successfully',
+      data: projects,
+      count: projects.length
+    });
+    
   } catch (error) {
     console.error('Error fetching all projects:', error);
     res.status(500).json({
