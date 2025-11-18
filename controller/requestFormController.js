@@ -1,5 +1,6 @@
 const RequestProjectData = require('../models/requestProjectData');
 const logActivity = require('../utils/logActivity');
+const Payments = require('../models/Payment');
 
 async function submitRequest(projectData, res) {
   try {
