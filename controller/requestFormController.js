@@ -156,7 +156,7 @@ async function getAllApprovedNullPayment(req, res) {
           model: Payments,
           required: false,
           where: {
-            paymentProof: null,
+            fileUrl: null,
           },
         },
       ],
