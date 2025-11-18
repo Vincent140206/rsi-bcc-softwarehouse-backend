@@ -216,9 +216,12 @@ exports.assignMembers = async (req, res) => {
       }, { transaction });
 
       await Notification.create({
-        memberId: member.id,
-        message: `Member ${member.name} assigned to Project ID ${projectId}`
+        senderId: req.user?.id || 1,
+        receiverId: member.id || 1,
+        projectId: projectId,
+        message: `Anda telah ditugaskan ke proyek ID ${projectId}`
       }, { transaction });
+
 
       // await Notification.create({
       //   senderId: req.user?.id || 1,
