@@ -57,6 +57,6 @@ const RequestProjectData = sequelize.define('RequestProjectData', {
   timestamps: false
 });
 
-RequestProjectData.belongsTo(Payments, { foreignKey: 'requestId' });
+RequestProjectData.belongsTo(Payment, { foreignKey: 'requestId' });
 
 module.exports = RequestProjectData;
