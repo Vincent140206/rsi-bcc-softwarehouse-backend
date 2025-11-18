@@ -146,4 +146,25 @@ async function getAllApproved(req, res) {
   }
 }
 
-module.exports = { submitRequest, getAllRequests, getProjectDetail, getAllByUserId, getAllPending, getAllApproved };
+async function getAllApprovedNullPayment(req, res) {
+  try {
+    const approvedNullPaymentRequests = await RequestProjectData.findAndCountAll({
+      where: { status: 'Approved', paymentProof: null },
+    });
+    return res.status(200).json({
+      success: true,
+      message: 'Data request project dengan status Approved dan bukti pembayaran null berhasil diambil',
+      count: approvedNullPaymentRequests.count,
+      data: approvedNullPaymentRequests.rows
+    });
+  } catch (error) {
+    logActivity('approved_null_payment_requests_failed', { error: error.message });
+    return res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan server',
+      error: error.message
+    });
+  }
+}
+
+module.exports = { submitRequest, getAllRequests, getProjectDetail, getAllByUserId, getAllPending, getAllApproved, getAllApprovedNullPayment };

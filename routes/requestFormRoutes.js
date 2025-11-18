@@ -28,5 +28,6 @@ router.get('/form/:requestId', requestFormController.getProjectDetail);
 router.get('/form/user/:userId', requestFormController.getAllByUserId);
 router.get('/form/status/pending', requestFormController.getAllPending);
 router.get('/form/status/approved', requestFormController.getAllApproved);
+router.get('/form/status/approved/null-payment', requestFormController.getAllApprovedNullPayment);
 
 module.exports = router;
