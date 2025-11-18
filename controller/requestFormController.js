@@ -149,7 +149,16 @@ async function getAllApproved(req, res) {
 async function getAllApprovedNullPayment(req, res) {
   try {
     const approvedNullPaymentRequests = await RequestProjectData.findAndCountAll({
-      where: { status: 'Approved', paymentProof: null },
+      where: { status: 'Approved' },
+      include: [
+        {
+          model: Payments,
+          required: false,
+          where: {
+            paymentProof: null,
+          },
+        },
+      ],
     });
     return res.status(200).json({
       success: true,
