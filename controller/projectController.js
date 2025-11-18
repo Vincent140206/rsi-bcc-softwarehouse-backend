@@ -88,3 +88,19 @@ exports.getProjectWithProgress = async (req, res) => {
     });
   }
 };
+
+exports.getAllProjects = async (req, res) => {
+  try {
+    const projects = await Project.findAll({
+      include: [{ model: Progress, as: 'progressList' }]
+    });
+
+    res.status(200).json(projects);
+  } catch (error) {
+    console.error('Error fetching all projects:', error);
+    res.status(500).json({
+      message: 'Failed to fetch all projects',
+      details: error.message
+    });
+  }
+};
