@@ -1,6 +1,7 @@
 const Payment = require('../models/Payment');
 const RequestProjectData = require('../models/requestProjectData');
 const cloudinary = require('../config/cloudinary');
+const { Op } = require("sequelize");
 
 exports.getPaymentsByUser = async (req, res) => {
   try {
@@ -231,5 +232,28 @@ exports.getPaymentByRequestId = async (req, res) => {
   } catch (error) {
     console.error('Error getPaymentByRequestId:', error);
     res.status(500).json({ success: false, message: 'Gagal mengambil data pembayaran' });
+  }
+};
+
+exports.getApprovedPendingPayments = async (req, res) => {
+  try {
+    const datas = await Payment.findAll({
+      where: {
+        fileUrl: { [Op.not]: null },
+        status: 'pending'
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Data pembayaran dengan fileUrl ada namun status pending",
+      data: datas
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Terjadi kesalahan server",
+      error: error.message
+    });
   }
 };

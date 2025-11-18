@@ -16,4 +16,5 @@ router.post('/upload-proof',
 
 router.delete('/:requestId/proof', paymentController.deleteProof);
 
+router.get('/approved/pending', paymentController.getApprovedPendingPayments);
 module.exports = router;
