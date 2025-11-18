@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-const Payment = require('../models/Payment')
 
 const RequestProjectData = sequelize.define('RequestProjectData', {
   requestId: {
@@ -57,6 +56,7 @@ const RequestProjectData = sequelize.define('RequestProjectData', {
   timestamps: false
 });
 
-RequestProjectData.belongsTo(Payment, { foreignKey: 'requestId' });
-
 module.exports = RequestProjectData;
+
+const Payment = require('../models/Payment')
+RequestProjectData.belongsTo(Payment, { foreignKey: 'requestId' });
