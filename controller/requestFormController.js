@@ -106,4 +106,24 @@ async function getAllByUserId(req, res) {
   }
 }
 
-module.exports = { submitRequest, getAllRequests, getProjectDetail, getAllByUserId };
+async function getAllPending(req, res) {
+  try {
+    const pendingRequests = await RequestProjectData.findAndCountAll({
+      where: { status: 'Pending' },
+    });
+    return res.status(200).json({
+      success: true,
+      message: 'Data request project dengan status Pending berhasil diambil',
+      data: pendingRequests
+    });
+  } catch (error) {
+    logActivity('pending_requests_failed', { error: error.message });
+    return res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan server',
+      error: error.message
+    });
+  }
+}
+
+module.exports = { submitRequest, getAllRequests, getProjectDetail, getAllByUserId, getAllPending };

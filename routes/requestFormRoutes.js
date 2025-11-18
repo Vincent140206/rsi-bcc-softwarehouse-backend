@@ -26,5 +26,6 @@ router.post('/form/submit', async (req, res) => {
 router.get('/form/data', requestFormController.getAllRequests);
 router.get('/form/:requestId', requestFormController.getProjectDetail);
 router.get('/form/user/:userId', requestFormController.getAllByUserId);
+router.get('/form/status/pending', requestFormController.getAllPending);
 
 module.exports = router;
