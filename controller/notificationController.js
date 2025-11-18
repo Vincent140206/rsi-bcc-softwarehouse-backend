@@ -1,5 +1,6 @@
 const Notification = require('../models/Notification');
 const Member = require('../models/Member');
+const { Op } = require('sequelize');
 
 exports.sendNotification = async (req, res) => {
   try {
@@ -36,8 +37,8 @@ exports.getUserNotifications = async (req, res) => {
         ]
       },
       include: [
-        { model: Member, as: 'sender', attributes: ['id', 'name', 'email'] },
-        { model: Member, as: 'receiver', attributes: ['id', 'name', 'email'] }
+        { model: Member, as: 'Sender', attributes: ['id', 'name', 'email'] },
+        { model: Member, as: 'Receiver', attributes: ['id', 'name', 'email'] }
       ],
       order: [['createdAt', 'ASC']]
     });
