@@ -72,7 +72,7 @@ exports.getProjectWithProgress = async (req, res) => {
   try {
     const { id } = req.params;
     const project = await Project.findByPk(id, {
-      include: [{ model: Progress, as: 'progressList' , order: [['updatedAt', 'DESC']]}]
+      include: [{ model: Progress, as: 'progressList' , order: [['updatedAt', 'ASC']]}]
     });
 
     if (!project) {
