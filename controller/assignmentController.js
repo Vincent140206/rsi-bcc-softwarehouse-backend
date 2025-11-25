@@ -1,6 +1,6 @@
 const Assignment = require('../models/Assignment');
 const { Member } = require('../models');
-const transporter = require('../config/email');
+const { transporter, kirimEmailAnalisis } = require('../config/email');
 const sequelize = require('../config/db');
 const Notification = require('../models/Notification');
 const { ProjectMembers } = require('../models');
