@@ -2,12 +2,18 @@ const Notification = require('../models/Notification');
 const Member = require('../models/Member');
 const { Op } = require('sequelize');
 
+/* =========================
+   Kirim notifikasi ke user lain
+   ========================= */
 exports.sendNotification = async (req, res) => {
   try {
     const { senderId, receiverId, message, projectId, parentId } = req.body;
 
     if (!senderId || !receiverId || !message) {
-      return res.status(400).json({ error: 'senderId, receiverId, dan message wajib diisi' });
+      return res.status(400).json({
+        success: false,
+        message: 'senderId, receiverId, dan message wajib diisi'
+      });
     }
 
     const newNotif = await Notification.create({
@@ -21,10 +27,13 @@ exports.sendNotification = async (req, res) => {
     res.status(201).json({ success: true, notification: newNotif });
   } catch (err) {
     console.error('Error sending notification:', err);
-    res.status(500).json({ success: false, message: 'Gagal mengirim notifikasi' });
+    res.status(500).json({ success: false, message: 'Gagal mengirim notifikasi', error: err.message });
   }
 };
 
+/* =========================
+   Ambil semua notifikasi terkait user (sender atau receiver)
+   ========================= */
 exports.getUserNotifications = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -46,6 +55,6 @@ exports.getUserNotifications = async (req, res) => {
     res.status(200).json({ success: true, notifications });
   } catch (error) {
     console.error('Error fetching notifications:', error);
-    res.status(500).json({ success: false, message: 'Internal Server Error' });
+    res.status(500).json({ success: false, message: 'Gagal mengambil notifikasi', error: error.message });
   }
 };

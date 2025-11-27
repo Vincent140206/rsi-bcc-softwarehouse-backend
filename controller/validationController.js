@@ -1,3 +1,6 @@
+// =========================
+// Cek kelengkapan field data project
+// =========================
 function cekKelengkapanData(projectData) {
   const requiredFields = [
     'userId',
@@ -8,6 +11,7 @@ function cekKelengkapanData(projectData) {
     'deadline'
   ];
 
+  // Loop semua field wajib, return false jika ada yang kosong / null / whitespace
   for (let field of requiredFields) {
     if (!projectData[field] || projectData[field].toString().trim() === '') {
       return false;
@@ -16,11 +20,16 @@ function cekKelengkapanData(projectData) {
   return true;
 }
 
+// =========================
+// Cek format data project
+// =========================
 function cekFormatData(projectData) {
+  // Budget harus number > 0
   if (isNaN(projectData.budget) || Number(projectData.budget) <= 0) {
     return false;
   }
 
+  // Deadline harus tanggal valid
   const date = new Date(projectData.deadline);
   if (isNaN(date.getTime())) {
     return false;
@@ -29,6 +38,9 @@ function cekFormatData(projectData) {
   return true;
 }
 
+// =========================
+// Fungsi utama validasi form
+// =========================
 function validateFormData(projectData) {
   if (!cekKelengkapanData(projectData)) {
     return { valid: false, message: 'Data tidak lengkap' };
@@ -41,6 +53,9 @@ function validateFormData(projectData) {
   return { valid: true };
 }
 
+// =========================
+// Tampilkan notifikasi error ke client (status 400)
+// =========================
 function tampilkanNotifikasiError(message, res) {
   return res.status(400).json({
     success: false,
@@ -48,6 +63,9 @@ function tampilkanNotifikasiError(message, res) {
   });
 }
 
+// =========================
+// Tampilkan error gagal validasi (status 500)
+// =========================
 function tampilkanPesanGagalValidasi(message, res) {
   return res.status(500).json({
     success: false,

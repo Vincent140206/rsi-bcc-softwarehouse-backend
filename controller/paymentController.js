@@ -1,8 +1,11 @@
 const Payment = require('../models/Payment');
 const RequestProjectData = require('../models/requestProjectData');
 const cloudinary = require('../config/cloudinary');
-const { Op } = require("sequelize");
+const { Op } = require('sequelize');
 
+/* =========================
+   Ambil semua payment milik user tertentu
+   ========================= */
 exports.getPaymentsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -15,9 +18,9 @@ exports.getPaymentsByUser = async (req, res) => {
       order: [['uploadedAt', 'DESC']]
     });
 
-    if(payments.length === 0) {
+    if (payments.length === 0) {
       return res.status(404).json({ success: false, message: 'Tidak ada pembayaran ditemukan untuk user ini' });
-    } 
+    }
 
     res.status(200).json({ success: true, data: payments });
   } catch (error) {
@@ -26,61 +29,47 @@ exports.getPaymentsByUser = async (req, res) => {
   }
 };
 
+/* =========================
+   Upload bukti pembayaran
+   ========================= */
 exports.uploadProof = async (req, res) => {
   try {
     const { requestId, uploadedBy } = req.body;
 
     if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: 'File bukti pembayaran wajib diunggah'
-      });
+      return res.status(400).json({ success: false, message: 'File bukti pembayaran wajib diunggah' });
     }
 
     if (!requestId) {
       await cloudinary.uploader.destroy(req.file.filename);
-      
-      return res.status(400).json({
-        success: false,
-        message: 'Request ID wajib diisi'
-      });
+      return res.status(400).json({ success: false, message: 'Request ID wajib diisi' });
     }
 
-    const payment = await Payment.findOne({
-      where: { requestId: requestId }
-    });
-
+    const payment = await Payment.findOne({ where: { requestId } });
     if (!payment) {
       await cloudinary.uploader.destroy(req.file.filename);
-      
-      return res.status(404).json({
-        success: false,
-        message: 'Payment belum dibuat untuk request ini. Pastikan project sudah di-approve terlebih dahulu.'
-      });
+      return res.status(404).json({ success: false, message: 'Payment belum dibuat untuk request ini. Pastikan project sudah di-approve terlebih dahulu.' });
     }
 
     if (payment.status === 'Verified') {
       await cloudinary.uploader.destroy(req.file.filename);
-      
-      return res.status(400).json({
-        success: false,
-        message: 'Payment sudah diverifikasi, tidak bisa diubah'
-      });
+      return res.status(400).json({ success: false, message: 'Payment sudah diverifikasi, tidak bisa diubah' });
     }
 
+    // Hapus file lama di Cloudinary jika ada
     if (payment.fileUrl) {
       try {
         const urlParts = payment.fileUrl.split('/');
         const publicIdWithExt = urlParts[urlParts.length - 1];
         const oldPublicId = `payment-proofs/${publicIdWithExt.split('.')[0]}`;
-        
         await cloudinary.uploader.destroy(oldPublicId);
-        console.log('Old file deleted from cloudinary:', oldPublicId);
+        console.log('Old file deleted from Cloudinary:', oldPublicId);
       } catch (deleteError) {
         console.error('Error deleting old file:', deleteError.message);
       }
     }
 
+    // Simpan file baru
     payment.fileUrl = req.file.path;
     payment.uploadedBy = uploadedBy;
     payment.uploadedAt = new Date();
@@ -88,7 +77,7 @@ exports.uploadProof = async (req, res) => {
 
     await payment.save();
 
-    console.log('Payment proof uploaded - requestId:', requestId, 'cloudinary URL:', req.file.path);
+    console.log('Payment proof uploaded - requestId:', requestId, 'Cloudinary URL:', req.file.path);
 
     res.status(200).json({
       success: true,
@@ -107,44 +96,24 @@ exports.uploadProof = async (req, res) => {
 
   } catch (error) {
     console.error('Error uploadProof:', error);
-    
     if (req.file) {
-      try {
-        await cloudinary.uploader.destroy(req.file.filename);
-      } catch (deleteError) {
-        console.error('Error deleting file after error:', deleteError.message);
-      }
+      try { await cloudinary.uploader.destroy(req.file.filename); } 
+      catch (deleteError) { console.error('Error deleting file after error:', deleteError.message); }
     }
-    
-    res.status(500).json({ 
-      success: false, 
-      message: 'Gagal mengunggah bukti pembayaran',
-      error: error.message 
-    });
+    res.status(500).json({ success: false, message: 'Gagal mengunggah bukti pembayaran', error: error.message });
   }
 };
 
+/* =========================
+   Hapus bukti pembayaran
+   ========================= */
 exports.deleteProof = async (req, res) => {
   try {
     const { requestId } = req.params;
 
-    const payment = await Payment.findOne({
-      where: { requestId: requestId }
-    });
-
-    if (!payment) {
-      return res.status(404).json({
-        success: false,
-        message: 'Payment tidak ditemukan'
-      });
-    }
-
-    if (!payment.fileUrl) {
-      return res.status(400).json({
-        success: false,
-        message: 'Tidak ada file untuk dihapus'
-      });
-    }
+    const payment = await Payment.findOne({ where: { requestId } });
+    if (!payment) return res.status(404).json({ success: false, message: 'Payment tidak ditemukan' });
+    if (!payment.fileUrl) return res.status(400).json({ success: false, message: 'Tidak ada file untuk dihapus' });
 
     const urlParts = payment.fileUrl.split('/');
     const publicIdWithExt = urlParts[urlParts.length - 1];
@@ -158,52 +127,39 @@ exports.deleteProof = async (req, res) => {
     payment.status = 'Pending';
     await payment.save();
 
-    res.status(200).json({
-      success: true,
-      message: 'File berhasil dihapus',
-      data: payment
-    });
-
+    res.status(200).json({ success: true, message: 'File berhasil dihapus', data: payment });
   } catch (error) {
     console.error('Error deleteProof:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Gagal menghapus file',
-      error: error.message
-    });
+    res.status(500).json({ success: false, message: 'Gagal menghapus file', error: error.message });
   }
 };
 
+/* =========================
+   Ambil semua payment
+   ========================= */
 exports.getAllPayments = async (req, res) => {
   try {
-    const payments = await Payment.findAndCountAll({
-      include: [RequestProjectData],
-      order: [['uploadedAt', 'DESC']]
-    });
+    const payments = await Payment.findAndCountAll({ include: [RequestProjectData], order: [['uploadedAt', 'DESC']] });
 
-    if (payments.length === 0) {
-      return res.status(404).json({ success: false, message: 'Tidak ada data pembayaran ditemukan' });
-    }
+    if (payments.length === 0) return res.status(404).json({ success: false, message: 'Tidak ada data pembayaran ditemukan' });
 
-    res.status(200).json({
-      success: true,
-      message: 'Data pembayaran berhasil diambil',
-      data: payments
-    });
+    res.status(200).json({ success: true, message: 'Data pembayaran berhasil diambil', data: payments });
   } catch (error) {
     console.error('Error getAllPayments:', error);
     res.status(500).json({ success: false, message: 'Gagal mengambil data pembayaran' });
   }
 };
 
+/* =========================
+   Update status payment
+   ========================= */
 exports.updatePaymentStatus = async (req, res) => {
   try {
     const { paymentId } = req.params;
     const { status, validatedBy } = req.body;
 
     const payment = await Payment.findByPk(paymentId);
-    if (!payment)
-      return res.status(404).json({ success: false, message: 'Pembayaran tidak ditemukan' });
+    if (!payment) return res.status(404).json({ success: false, message: 'Pembayaran tidak ditemukan' });
 
     payment.status = status;
     payment.validatedBy = validatedBy;
@@ -218,15 +174,15 @@ exports.updatePaymentStatus = async (req, res) => {
   }
 };
 
+/* =========================
+   Ambil payment berdasarkan requestId
+   ========================= */
 exports.getPaymentByRequestId = async (req, res) => {
   try {
     const { requestId } = req.params;
-    const payment = await Payment.findOne({
-      where: { requestId }
-    });
-    if (!payment) {
-      return res.status(404).json({ success: false, message: 'Pembayaran tidak ditemukan' });
-    }
+
+    const payment = await Payment.findOne({ where: { requestId } });
+    if (!payment) return res.status(404).json({ success: false, message: 'Pembayaran tidak ditemukan' });
 
     res.status(200).json({ success: true, data: payment });
   } catch (error) {
@@ -235,6 +191,9 @@ exports.getPaymentByRequestId = async (req, res) => {
   }
 };
 
+/* =========================
+   Ambil payment yang fileUrl ada tapi status masih pending
+   ========================= */
 exports.getApprovedPendingPayments = async (req, res) => {
   try {
     const datas = await Payment.findAll({
@@ -244,16 +203,9 @@ exports.getApprovedPendingPayments = async (req, res) => {
       }
     });
 
-    return res.status(200).json({
-      success: true,
-      message: "Data pembayaran dengan fileUrl ada namun status pending",
-      data: datas
-    });
+    res.status(200).json({ success: true, message: 'Data pembayaran dengan fileUrl ada namun status pending', data: datas });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Terjadi kesalahan server",
-      error: error.message
-    });
+    console.error('Error getApprovedPendingPayments:', error);
+    res.status(500).json({ success: false, message: 'Terjadi kesalahan server', error: error.message });
   }
 };

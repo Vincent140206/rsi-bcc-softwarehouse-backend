@@ -1,3 +1,4 @@
+// routes/authRoutes.js
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -6,13 +7,16 @@ require('dotenv').config();
 
 const router = express.Router();
 
+// Register
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, phone, userType } = req.body;
 
+    // Check email
     const existing = await User.findOne({ where: { email } });
     if (existing) return res.status(400).json({ message: 'Email already exists' });
 
+    // Hash password
     const hashed = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hashed, phone, userType });
 
@@ -22,6 +26,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Login
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -29,9 +34,11 @@ router.post('/login', async (req, res) => {
 
     if (!user) return res.status(404).json({ message: 'User Not Found' });
 
+    // Verify password
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(401).json({ message: 'Invalid Password' });
 
+    // Create JWT
     const token = jwt.sign(
       { userId: user.userId, email: user.email, userType: user.userType },
       process.env.JWT_SECRET,
@@ -44,6 +51,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Profile
 router.get('/me', verifyToken, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.userId, {
@@ -57,7 +65,8 @@ router.get('/me', verifyToken, async (req, res) => {
 
 function verifyToken(req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = authHeader?.split(' ')[1];
+
   if (!token) return res.status(401).json({ message: 'Token not found' });
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {

@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 
+// Konfigurasi transporter nodemailer menggunakan Gmail service
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -8,6 +9,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Fungsi untuk mengirim email notifikasi update progress request/analisis
 async function kirimEmailAnalisis(targetEmail, requestId, keputusan, title, description) {
   const mailOptions = {
     from: '"RSI System" <no-reply@rsi-bcc.com>',
@@ -23,6 +25,7 @@ async function kirimEmailAnalisis(targetEmail, requestId, keputusan, title, desc
   };
 
   try {
+    // Kirim email menggunakan transporter
     await transporter.sendMail(mailOptions);
     console.log(`Email analisis untuk request ${requestId} terkirim ke ${targetEmail}`);
   } catch (error) {

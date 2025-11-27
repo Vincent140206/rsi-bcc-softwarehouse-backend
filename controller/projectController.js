@@ -1,6 +1,7 @@
 const { Project, Progress, Member } = require('../models');
 const nodemailer = require('nodemailer');
 
+// Konfigurasi transporter untuk mengirim email via Gmail
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -9,11 +10,16 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+/* =========================
+   Tambah progress baru pada project
+   - Mengirim notifikasi email ke semua member project
+   ========================= */
 exports.addProgress = async (req, res) => {
   try {
     const { projectId } = req.params;
     const { title, description, status } = req.body;
 
+    // Ambil project beserta member terkait
     const project = await Project.findByPk(projectId, {
       include: [
         {
@@ -28,6 +34,7 @@ exports.addProgress = async (req, res) => {
       return res.status(404).json({ error: 'Project not found' });
     }
 
+    // Simpan progress baru
     const newProgress = await Progress.create({
       projectId,
       title,
@@ -35,6 +42,7 @@ exports.addProgress = async (req, res) => {
       status
     });
 
+    // Kirim email ke setiap member project
     for (const member of project.members) {
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
@@ -59,6 +67,7 @@ exports.addProgress = async (req, res) => {
       message: 'Progress added and emails sent to all project members',
       progress: newProgress
     });
+
   } catch (error) {
     console.error('Error adding progress and sending email:', error);
     res.status(500).json({
@@ -68,6 +77,9 @@ exports.addProgress = async (req, res) => {
   }
 };
 
+/* =========================
+   Ambil project beserta semua progress-nya
+   ========================= */
 exports.getProjectWithProgress = async (req, res) => {
   try {
     const { id } = req.params;
@@ -78,7 +90,7 @@ exports.getProjectWithProgress = async (req, res) => {
           as: 'progressList',
         }
       ],
-      order: [['progressList', 'updatedAt', 'DESC']]
+      order: [['progressList', 'updatedAt', 'DESC']] // urut dari update terbaru
     });
 
     if (!project) {
@@ -86,6 +98,7 @@ exports.getProjectWithProgress = async (req, res) => {
     }
 
     res.status(200).json(project);
+
   } catch (error) {
     console.error('Error fetching project progress:', error);
     res.status(500).json({
@@ -95,6 +108,9 @@ exports.getProjectWithProgress = async (req, res) => {
   }
 };
 
+/* =========================
+   Ambil semua project beserta progress-nya
+   ========================= */
 exports.getAllProjects = async (req, res) => {
   try {
     const projects = await Project.findAll({
@@ -106,7 +122,7 @@ exports.getAllProjects = async (req, res) => {
       data: projects,
       count: projects.length
     });
-    
+
   } catch (error) {
     console.error('Error fetching all projects:', error);
     res.status(500).json({

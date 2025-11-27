@@ -6,6 +6,7 @@ const Notification = require('../models/Notification');
 const { ProjectMembers } = require('../models');
 const { Project } = require('../models');
 
+// Membuat template email untuk penugasan anggota ke proyek
 const createAssignmentEmailTemplate = (member, projectId, role) => {
   return {
     from: process.env.EMAIL_USER,
@@ -16,6 +17,7 @@ const createAssignmentEmailTemplate = (member, projectId, role) => {
   };
 };
 
+// Generate konten HTML untuk email penugasan
 const generateEmailHTML = (member, projectId, role) => {
   const dashboardUrl = process.env.DASHBOARD_URL || 'https://pg-vincent.bccdev.id/rsi/login';
   const assignmentDate = new Date().toLocaleDateString('id-ID', { 
@@ -151,6 +153,7 @@ const generateEmailHTML = (member, projectId, role) => {
   `;
 };
 
+// Generate konten text plain untuk email penugasan sebagai fallback jika client tidak support HTML
 const generateEmailText = (member, projectId, role) => {
   const dashboardUrl = process.env.DASHBOARD_URL || 'https://bccfilkom.ub.ac.id/';
   const assignmentDate = new Date().toLocaleDateString('id-ID');
@@ -175,6 +178,7 @@ Tim Manajemen Proyek
 Email ini dikirim secara otomatis, mohon tidak membalas email ini.`;
 };
 
+// Mengirim email notifikasi penugasan ke anggota tim
 const sendAssignmentEmail = async (member, projectId, role) => {
   try {
     const mailOptions = createAssignmentEmailTemplate(member, projectId, role);
@@ -186,35 +190,42 @@ const sendAssignmentEmail = async (member, projectId, role) => {
   }
 };
 
+// Handler untuk assign/menugaskan anggota-anggota tim ke sebuah proyek
 exports.assignMembers = async (req, res) => {
   const { projectId, members } = req.body;
 
+  // Validasi input request
   if (!projectId || !members || !Array.isArray(members) || members.length === 0) {
     return res.status(400).json({
       error: 'Invalid input. projectId and members array are required.'
     });
   }
 
+  // Mulai database transaction untuk memastikan atomicity
   const transaction = await sequelize.transaction();
 
   try {
     const emailResults = [];
 
+    // Loop setiap member untuk diassign ke proyek
     for (const item of members) {
       if (!item.memberId) {
         throw new Error('Each member must have memberId specified');
       }
 
+      // Cari data member berdasarkan ID
       const member = await Member.findOne({ where: { id: item.memberId } });
       if (!member) {
         throw new Error(`Member with ID ${item.memberId} not found`);
       }
 
+      // Buat relasi antara project dan member di tabel ProjectMembers
       await ProjectMembers.create({
         projectId: projectId,
         memberId: member.id,
       }, { transaction });
 
+      // Buat notifikasi untuk member yang ditugaskan
       await Notification.create({
         senderId: req.user?.id || 1,
         receiverId: member.id || 1,
@@ -237,8 +248,10 @@ exports.assignMembers = async (req, res) => {
       //   message: `Member ${member.name} telah berhasil ditugaskan ke proyek ID ${projectId}`
       // }, { transaction });
 
+      // Update status member menjadi 'assigned'
       await member.update({ status: 'assigned' }, { transaction });
 
+      // Kirim email notifikasi penugasan
       const emailResult = await sendAssignmentEmail(member, projectId, item.role);
       emailResults.push({
         memberId: item.memberId,
@@ -247,8 +260,10 @@ exports.assignMembers = async (req, res) => {
       });
     }
 
+    // Commit transaction jika semua proses berhasil
     await transaction.commit();
 
+    // Check jika ada email yang gagal dikirim
     const failedEmails = emailResults.filter(result => !result.success);
     if (failedEmails.length > 0) {
       return res.status(207).json({
@@ -258,12 +273,14 @@ exports.assignMembers = async (req, res) => {
       });
     }
 
+    // Response sukses
     res.json({
       message: 'Assignment and email notifications completed successfully',
       emailResults
     });
 
   } catch (err) {
+    // Rollback transaction jika terjadi error
     await transaction.rollback();
     console.error('Assignment error:', err);
     res.status(500).json({
@@ -273,10 +290,12 @@ exports.assignMembers = async (req, res) => {
   }
 };
 
+// Handler untuk mendapatkan semua proyek yang ditugaskan ke seorang member
 exports.getMemberProjects = async (req, res) => {
   try {
     const { memberId } = req.params;
 
+    // Cari member beserta relasi proyeknya
     const member = await Member.findByPk(memberId, {
       include: [
         {
@@ -301,9 +320,12 @@ exports.getMemberProjects = async (req, res) => {
   }
 };
 
+// Handler untuk mendapatkan semua member yang ditugaskan ke sebuah proyek
 exports.getAssignedMembers = async (req, res) => {
   try {
     const { projectId } = req.params;
+    
+    // Cari project beserta relasi membernya
     const project = await Project.findByPk(projectId, {
       include: [
         {

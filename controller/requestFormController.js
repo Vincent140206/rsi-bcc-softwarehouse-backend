@@ -2,6 +2,9 @@ const RequestProjectData = require('../models/requestProjectData');
 const logActivity = require('../utils/logActivity');
 const Payments = require('../models/Payment');
 
+/* =========================
+   Submit request project baru
+   ========================= */
 async function submitRequest(projectData, res) {
   try {
     const newRequest = await RequestProjectData.create({
@@ -14,6 +17,7 @@ async function submitRequest(projectData, res) {
       status: 'Pending'
     });
 
+    // Log aktivitas
     logActivity('request_created', {
       userId: projectData.userId,
       projectName: projectData.projectName
@@ -33,6 +37,9 @@ async function submitRequest(projectData, res) {
   }
 }
 
+/* =========================
+   Ambil semua request project
+   ========================= */
 async function getAllRequests(req, res) {
   try {
     const request = await RequestProjectData.findAndCountAll({
@@ -54,6 +61,9 @@ async function getAllRequests(req, res) {
   }
 }
 
+/* =========================
+   Ambil detail project berdasarkan requestId
+   ========================= */
 async function getProjectDetail(req, res) {
   try {
     const { requestId } = req.params;
@@ -73,6 +83,9 @@ async function getProjectDetail(req, res) {
   }
 }
 
+/* =========================
+   Ambil semua request project milik user tertentu
+   ========================= */
 async function getAllByUserId(req, res) {
   try {
     const { userId } = req.params;
@@ -107,6 +120,9 @@ async function getAllByUserId(req, res) {
   }
 }
 
+/* =========================
+   Ambil semua request dengan status Pending
+   ========================= */
 async function getAllPending(req, res) {
   try {
     const pendingRequests = await RequestProjectData.findAndCountAll({
@@ -127,6 +143,9 @@ async function getAllPending(req, res) {
   }
 }
 
+/* =========================
+   Ambil semua request dengan status Approved
+   ========================= */
 async function getAllApproved(req, res) {
   try {
     const approvedRequests = await RequestProjectData.findAndCountAll({
@@ -147,6 +166,9 @@ async function getAllApproved(req, res) {
   }
 }
 
+/* =========================
+   Ambil semua request Approved yang belum ada bukti pembayaran
+   ========================= */
 async function getAllApprovedNullPayment(req, res) {
   try {
     const approvedNullPaymentRequests = await RequestProjectData.findAndCountAll({
@@ -177,4 +199,12 @@ async function getAllApprovedNullPayment(req, res) {
   }
 }
 
-module.exports = { submitRequest, getAllRequests, getProjectDetail, getAllByUserId, getAllPending, getAllApproved, getAllApprovedNullPayment };
+module.exports = { 
+  submitRequest, 
+  getAllRequests, 
+  getProjectDetail, 
+  getAllByUserId, 
+  getAllPending, 
+  getAllApproved, 
+  getAllApprovedNullPayment 
+};
